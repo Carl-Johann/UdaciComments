@@ -29,13 +29,13 @@ body {
 }
 
 .unselectable {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    cursor: pointer;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
 }
 
 .select-category-link {
@@ -48,6 +48,10 @@ body {
 }
 
 .category-name {
+  text-transform: capitalize;
+}
+
+.media-heading {
   text-transform: capitalize;
 }
 
@@ -67,3 +71,28 @@ body {
  .card-text {
    font-weight: 500
  }
+
+.comment-body {
+  margin-left: 20px;
+  margin-top: 20px;
+  margin-right: 20px;
+  padding-bottom: 1em;
+}
+
+.btn {
+  border-width: 0px;
+  border-top-left-radius: 0px;
+}
+
+.comment-add-vote-score {
+
+  width: 51%;
+  border-width: 00px;
+  border-top-left-radius: 0px;
+}
+
+.comment-remove-vote-score {
+  width: 51%;
+  border-width: 0px;
+  border-top-right-radius: 0px;
+}

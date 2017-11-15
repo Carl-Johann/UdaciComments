@@ -81,7 +81,6 @@ class PostsList extends Component {
 
 
                 <CardColumns>
-
                     { posts['posts'] !== undefined && posts['posts'].map( post => (
                         <div key={ post.id }>
 

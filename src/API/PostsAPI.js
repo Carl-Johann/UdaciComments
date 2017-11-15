@@ -16,7 +16,20 @@ export const getAllPosts = () =>
     .then(response => response.json())
     .then(data => data)
 
+
 export const getPostById = (Id) =>
-    fetch(`${api}/posts/${Id}`, { headers })
+    fetch(`${api}/posts/${Id}`, { method: 'GET', headers })
         .then(response => response.json())
         .then(data => data)
+
+
+export const votePost = (Id, vote) =>
+    fetch( `${api}/posts/${Id}`, {
+        method: "post",
+        headers: {
+            ...headers
+        },
+        body: JSON.stringify({ option: vote })
+
+    } ).then( response => response.json())
+
