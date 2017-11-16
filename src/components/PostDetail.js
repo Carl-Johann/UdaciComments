@@ -14,7 +14,8 @@ import {
 import {
     Card, CardTitle, CardText,
     CardColumns, CardSubtitle, CardBody,
-    Container, Button, ButtonGroup
+    Container, Button, ButtonGroup,
+    Modal
 } from 'reactstrap';
 import '../index.css';
 
@@ -24,6 +25,8 @@ class PostDetail extends Component {
         postId: "",
         post: {},
         comments: [],
+        voteScore: 0,
+        isModalOpen: false,
     }
 
 
@@ -53,7 +56,7 @@ class PostDetail extends Component {
         if (this.props.posts[0] === undefined ) {
             // If there's no posts in store. We GET it from server, and assign it to state
             PostsAPI.getPostById(this.props.match.params.post_id).then( post => {
-                this.setState({ post })
+                this.setState({ post, voteScore: post.voteScore })
             })
         }
 
@@ -68,20 +71,32 @@ class PostDetail extends Component {
     render () {
 
         const { match, location, history, posts } = this.props
-        const { postId, post, comments } = this.state
+        const { postId, post, comments, voteScore, isModalOpen } = this.state
         const { post_id } = this.props.match.params
 
-        const popoverBottom = (
-            <Popover id="popover-trigger-hover-focus" title="Popover bottom">
-                <strong>Holy guacamole!</strong> Check this info.
-            </Popover>
-        )
+        const openModal = () => {
+            console.log(123)
+            this.setState({ isModalOpen : true })            
+        }
 
-        const onVote = (vote) => {
-            console.log(123, vote)
-            PostsAPI.votePost(post_id, vote).then( response => (
-                console.log(555, response)
-            ))
+        const closeModal = () => {
+            this.setState({ isModalOpen : false })
+        }
+
+        const onVote = (vote) => {            
+            PostsAPI.votePost(post_id, vote).then( response => {
+                console.log("Vote response", response)
+                
+                switch(vote) {
+                    case 'upVote':
+                        this.setState({ voteScore: voteScore + 1 })
+                        break
+                    case 'downVote':
+                        this.setState({ voteScore: voteScore - 1 })
+                        break
+                }
+                
+            })
         }
 
 
@@ -90,6 +105,17 @@ class PostDetail extends Component {
         return (
             <div className="post-detail">
                 <Container className="post-detail-container">
+                    
+                    <Modal show={ isModalOpen } close={ closeModal } > 
+                        <Modal.Header>
+                            <Modal.Title>
+                                131231231    
+                            </Modal.Title>
+                        </Modal.Header>
+                    </Modal>    
+                    
+                    
+
                     <Card body style={{ backgroundColor: '#e5e5e5' }}>
 
                         <CardTitle className="title" >
@@ -99,15 +125,15 @@ class PostDetail extends Component {
                         <span> { post.body } </span>
 
 
-                        { post.voteScore < 0 && (
-                            <ProgressBar style={{ height: '3em', marginTop: '1em', marginBottom: '0.5em' }} bsStyle="danger"  now={ post.voteScore } label={`${ post.voteScore } votes`} key={1} />
+                        { voteScore < 0 && (
+                            <ProgressBar style={{ height: '3em', marginTop: '1em', marginBottom: '0.5em' }} bsStyle="danger"  now={ voteScore } label={`${ voteScore } votes`} key={1} />
                         ) }
 
-                        { post.voteScore > 0 && (
-                            <ProgressBar style={{ height: '3em', marginTop: '1em', marginBottom: '0.5em' }} bsStyle="success" now={ post.voteScore } label={`${ post.voteScore } votes`} key={2} />
+                        { voteScore > 0 && (
+                            <ProgressBar style={{ height: '3em', marginTop: '1em', marginBottom: '0.5em' }} bsStyle="success" now={ voteScore } label={`${ voteScore } votes`} key={2} />
                         ) }
 
-                        { post.voteScore === 0 && (
+                        { voteScore === 0 && (
                             <ProgressBar style={{ height: '3em', marginTop: '1em', marginBottom: '0.5em' }} bsStyle="warning" now={0} label={ "0 votes" } key={3} />
                         ) }
 
@@ -116,7 +142,7 @@ class PostDetail extends Component {
 
                     </Card>
 
-                    <br/>
+                    <Button style={{ width: '100%', marginTop: '16px' }} onClick={ openModal }> Add Comment </Button>
 
                     <div>
                         { comments.map( comment => (
@@ -169,4 +195,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(PostDetail)
-
