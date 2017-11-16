@@ -64,7 +64,7 @@ body {
   margin-top: 2.5em;
 }
 
- .card-title {
+.card-title {
     font-size: 30;
  }
 
@@ -72,7 +72,7 @@ body {
    font-weight: 500
  }
 
-.comment-body {
+.div-card-body {
   margin-left: 20px;
   margin-top: 20px;
   margin-right: 20px;
@@ -95,4 +95,9 @@ body {
   width: 51%;
   border-width: 0px;
   border-top-right-radius: 0px;
+}
+
+.form-control {
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
