@@ -15,7 +15,8 @@ import {
 import {
     Card, CardTitle, CardText,
     CardColumns, CardSubtitle, CardBody,
-    Container, Button, ButtonGroup, Modal,
+    Container, Button, ButtonGroup,
+    Modal,
     ModalHeader, ModalBody, ModalFooter,
 } from 'reactstrap';
 import '../index.css';
@@ -27,7 +28,7 @@ class PostDetail extends Component {
         post: {},
         comments: [],
         voteScore: 0,
-        isModalOpen: true,
+        isModalOpen: false,
 
         createTitle: '',
         createBody: '',
@@ -128,9 +129,9 @@ class PostDetail extends Component {
         })
     }
 
-    closeModal = () => { this.setState({ isModalOpen : false }) }
+    closeModal = () => { this.setState({ isModalOpen: false }) }
 
-    openModal  = () => { this.setState({ isModalOpen : true  }) }
+    openModal  = () => { this.setState({ isModalOpen: true  }) }
 
 
 
@@ -140,58 +141,64 @@ class PostDetail extends Component {
     handleOptionChange = (event) => { this.setState({createOption: event.target.value }); }
 
 
-    handeSubmit = () => {
-        console.log(this.state.createTitle)
-        console.log(this.state.createBody)
-        console.log(this.state.createAuthor)
-        console.log(this.state.createOption)
+    handleSubmit = () => {
+            // console.log(1)
+            CommentsAPI.createComment(this.state.createTitle, this.state.createBody, this.state.createAuthor, this.state.createOption, this.state.postId).then( responst_comment => {
+                // console.log("Create Comment response: ", responst_comment)
 
 
+                this.setState({
+                    // isModalOpel: false,
+                    comments: this.state.comments.concat([responst_comment])
+                 })
 
-    }
+        } ).then(
+            this.closeModal
+        ) }
+
 
 
     render () {
 
         const { match, location, history, posts, categories } = this.props
-        const { post,  comments, isModalOpen, createTitle, createBody, createAuthor } = this.state
+        const { post,  comments, isModalOpen, createTitle, createBody, createAuthor, createOption, postId } = this.state
         const { post_id } = this.props.match.params
 
 
 
         return (
             <div className="post-detail">
+                <div>
+                    <Modal isOpen={ isModalOpen } >
+                        <ModalHeader toggle={ this.closeModal }> Create Comment </ModalHeader>
 
-                 <Modal isOpen={ isModalOpen } toggle={ this.openModal }>
-                    <ModalHeader toggle={ this.closeModal }> Create Comment </ModalHeader>
+                        <ModalBody>
+                            <form onSubmit={ this.handleSubmit }>
+                                <FormGroup controlId="formValidationNull" validationState={null}>
 
-                    <ModalBody>
-                        <form onSubmit={this.handleSubmit}>
-                            <FormGroup controlId="formValidationNull" validationState={null}>
-
-                                <FormControl required placeholder="Title" value={createTitle} onChange={this.handleTitleChange} type="text" />
-                                <FormControl placeholder="Body"  value={createBody} onChange={this.handleBodyChange} type="textarea" />
-                                <FormControl placeholder="Author (you)" value={createAuthor} onChange={this.handleAuthorChange} type="text" />
+                                    <FormControl required placeholder="Title" value={createTitle} onChange={this.handleTitleChange} type="text" />
+                                    <FormControl placeholder="Body"  value={createBody} onChange={this.handleBodyChange} type="textarea" />
+                                    <FormControl placeholder="Author (you)" value={createAuthor} onChange={this.handleAuthorChange} type="text" />
 
 
-                                <FormControl defaultValue='React' componentClass="select" onChange={this.handleOptionChange} style={{ textTransform: 'capitalize' }} placeholder="Select Category">
-                                    <option disabled> Select category... </option>
-                                    { categories['categories'] !== undefined && categories['categories'].map( category => (
-                                        <option name={category.name} key={category.name} > {category.name} </option>
-                                    ) )}
-                                </FormControl>
+                                    <FormControl defaultValue='React' componentClass="select" onChange={ this.handleOptionChange } style={{ textTransform: 'capitalize' }} placeholder="Select Category">
+                                        <option disabled> Select category... </option>
+                                        { categories['categories'] !== undefined && categories['categories'].map( category => (
+                                            <option name={ category.name } key={ category.name } > { category.name } </option>
+                                        ) )}
+                                    </FormControl>
 
-                            </FormGroup>
-                        </form>
-                    </ModalBody>
+                                </FormGroup>
+                            </form>
+                        </ModalBody>
 
-                    <ModalFooter>
-                        <Button color="primary"   onClick={ this.handeSubmit  } > Post Comment </Button>
-                        <Button color="secondary" onClick={ this.closeModal } > Cancel </Button>
-                    </ModalFooter>
+                        <ModalFooter>
+                            <Button color="success"   onClick={ this.handleSubmit } > Post Comment </Button>
+                            <Button color="secondary" onClick={  this.closeModal  } > Cancel </Button>
+                        </ModalFooter>
 
-                </Modal>
-
+                    </Modal>
+                </div>
 
                 <Container className="post-detail-container">
 

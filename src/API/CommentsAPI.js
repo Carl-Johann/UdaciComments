@@ -24,4 +24,22 @@ export const voteComment = (commentId, vote) =>
         },
         body: JSON.stringify({ option: vote })
 
-    } ).then( response => response.json())
+    }).then( response => response.json())
+
+export const createComment = (title, body, author, category, parentId) =>
+    fetch( `${api}/comments`, {
+        method: "post",
+        headers: {
+            ...headers
+        },
+        body: JSON.stringify({
+            id: Math.random().toString(36).substr(-8),
+            title: title,
+            body: body,
+            author: author,
+            category: category,
+            timestamp: Date.now(),
+            parentId: parentId
+        })
+
+    }).then( response => response.json())
