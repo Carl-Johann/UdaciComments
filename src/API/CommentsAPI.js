@@ -19,14 +19,14 @@ export const getAllPostsForComment = (postId) =>
 export const voteComment = (commentId, vote) =>
     fetch( `${api}/comments/${commentId}`, {
         method: "post",
-        headers: {
-            ...headers
-        },
+        headers,
         body: JSON.stringify({ option: vote })
 
-    }).then( response => response.json())
+    })
+    .then( response => response.json())
+    .then( data => data )
 
-export const createComment = (title, body, author, category, parentId) =>
+export const createComment = (body, author, category, parentId) =>
     fetch( `${api}/comments`, {
         method: "post",
         headers: {
@@ -34,7 +34,6 @@ export const createComment = (title, body, author, category, parentId) =>
         },
         body: JSON.stringify({
             id: Math.random().toString(36).substr(-8),
-            title: title,
             body: body,
             author: author,
             category: category,
@@ -43,3 +42,9 @@ export const createComment = (title, body, author, category, parentId) =>
         })
 
     }).then( response => response.json())
+
+
+export const deleteComment = (commentId) =>
+    fetch( `${api}/comments/${commentId}`, { method: 'delete', headers } )
+        .then( response => response.json() )
+        .then( data => data )

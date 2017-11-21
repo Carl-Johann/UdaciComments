@@ -35,17 +35,33 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  cursor: pointer;
+  cursor: default;
+}
+
+::-webkit-input-placeholder {
+  text-transform:capitalize;
 }
 
 .select-category-link {
-  cursor: default;
-  color: #212529;
+  /*cursor: pointer;*/
+  color: black;
+  margin-top: 2em;
+  background-color: #e5e5e5;
+}
+
+.select-category-link:hover {
+  cursor: pointer;
+  text-decoration: none;
+  /*background-color: #cac7c7;*/
+  color: gray;
 }
 
 .select-post-link {
   cursor: pointer;
 }
+
+
+
 
 .category-name {
   text-transform: capitalize;
@@ -55,13 +71,13 @@ body {
   text-transform: capitalize;
 }
 
-.select-category-link:hover {
+/*.select-category-link:hover {
   text-decoration: none;
   color: #212529;
-}
+}*/
 
 .post-detail-container {
-  margin-top: 2.5em;
+  margin-top: 1em;
 }
 
 .card-title {
@@ -100,4 +116,19 @@ body {
 .form-control {
   margin-top: 1em;
   margin-bottom: 1em;
+}
+
+.right{
+    float:right;
+}
+
+.left{
+    float:left;
+}
+
+.center {
+  float: center;
+}
+.edit-comment {
+  cursor: pointer
 }

@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
 import '../index.css';
 import { connect } from 'react-redux'
-import { setCategories, setPosts, setCategory } from '../actions'
+import { setCategories, setPosts, setCategory, setPostsForCategory, removePostById } from '../actions'
+
 import * as CategoriesAPI from '../API/CategoriesAPI';
 import * as PostsAPI from '../API/PostsAPI';
+
 import moment from 'moment'
 import { Link } from 'react-router-dom'
+
+import FontAwesome from 'react-fontawesome'
 import {
     Card, Button, CardImg,
     CardTitle, CardText, CardColumns,
     CardSubtitle, CardBody, Row,
     Col, CardFooter, ButtonDropdown,
-    DropdownToggle, DropdownMenu, DropdownItem,
+    DropdownToggle, DropdownMenu, DropdownItem, Container
 } from 'reactstrap';
 
 class PostsList extends Component {
@@ -22,8 +26,13 @@ class PostsList extends Component {
             'redux' : 'secondary',
             'udacity' : 'danger',
         },
-        shouldSelectorSlide: false,
-        shownCategory: 'react',
+        shownCategory: '',
+        postsForCategory: [],
+    }
+
+
+    componentWillMount() {
+        this.setState({ postsForCategory: [] })
     }
 
     componentDidMount() {
@@ -31,98 +40,134 @@ class PostsList extends Component {
             // console.log("From fetch", categories);
                 // Dispatching to store
                 this.props.setAllCategories({categories})
-            // console.log("From store", this.props.categories)
+            console.log("From store1", this.props.categories)
         })
 
         PostsAPI.getAllPosts().then( posts => {
             // console.log("From fetch", posts)
                 // Dispatching to store
-                this.props.setAllPosts({posts})
+                this.props.setAllPosts({ posts })
             // console.log("From store", this.props.posts)
         })
 
-        let lort = "react"
-        this.props.setShownCategory({lort})
+        let shownCategory = this.props.match.params.category
+
+        this.setState({ shownCategory })
+
+        PostsAPI.getPostsByCategory(shownCategory).then( postsForCategory => {
+            this.props.setAllPostsForCategory({ postsForCategory })
+        })
+
 
     }
 
 
+    viewPostInDetail = (postId) => {
+        let shownCategory = this.props.match.params.category
+        this.props.history.push(`/${shownCategory}/${postId}`)
+    }
+
+
+    deletePost = (postId) => {
+        console.log(13123123123, this.props.posts)
+        PostsAPI.deletePost(postId).then( post_response => {
+            console.log(123, post_response)
+
+            let postsForCategory = this.state.postsForCategory.filter( post=> post.id !== postId)
+            this.props.deletePostById(postId)
+            // this.setState({ postsForCategory })
+
+        })
+    }
+
+
     render() {
-        const { posts, categories, category } = this.props
+        const { categories, category, store } = this.props
+        const { postsForCategory, posts } = this.props
         const { categoryColors, shouldSelectorSlide, shownCategory } = this.state
 
-        const changeSelector = () => { this.state.shouldSelectorSlide ? this.setState({ shouldSelectorSlide : false }) : this.setState({ shouldSelectorSlide : true }) }
-
-        const e = () => { }
+        const fixedAddBtn = { cursor: 'pointer', position: 'fixed', bottom: '3em', right: '3em', borderColor: '#ffc107', backgroundColor: '#ffc107', color: '#111' }
+        const title  = { display: 'inline-block', width: '85%', cursor: 'pointer' }
+        const backBtn = { color: 'gray', marginLeft: '1em', marginTop: '0.4em' }
+        const smallSpanStyle  = { color: 'black', opacity: 0.6 }
+        const deleteP = { display: 'inline', zIndex: '99999', cursor: 'pointer' }
+        const cardTextStyle = { cursor: 'pointer' }
+        const h3Style = { textAlign: 'center' }
+        const times = { float: 'right' }
 
         return (
-            <div className="container">
 
-                <p className="title unselectable" onClick={ changeSelector } > { shownCategory } </p>
+            <div className="categorys-posts">
+                 <span className="left">
+                    <Link to={`/`}>
+                        <FontAwesome name="angle-left" size="3x" style={ backBtn }/>
+                    </Link>
+                </span>
 
-                <ButtonDropdown isOpen={ shouldSelectorSlide } toggle={ e } >
+                <p className="title unselectable"> { shownCategory } </p>
 
+                <Container>
 
-                    <DropdownToggle caret>
-                        Button Dropdown
-                    </DropdownToggle>
+                    { posts === undefined && (
+                        <h3 style={ h3Style } onClick={ () => console.log(this.props) }> No posts for this category. Add some... </h3>
+                    )}
 
-                    <DropdownMenu>
-                        { categories['categories'] !== undefined && categories['categories'].map( category => (
-                            <Link className="select-category-link" to={`/${category.path}`} key={category.name}>
-                                <DropdownItem >
-                                    <span className="category-name"> { category.name } </span>
-                                </DropdownItem>
-                            </Link>
-                        )) }
-                    </DropdownMenu>
+                    <CardColumns>
+                        { posts.posts !== undefined && ( posts.posts.map( post => (
+                            <div key={ post.id }>
+                                <Card body inverse color={ categoryColors[post.category] }>
+                                    <CardTitle >
+                                        <p style={ title } onClick={ () => { this.viewPostInDetail(post.id) }}> { post.title } </p>
+                                        <p style={ deleteP } onClick={ () => { this.deletePost(post.id)  }} >
+                                            <FontAwesome name="times" style={times}/>
+                                        </p>
+                                    </CardTitle>
 
-                </ButtonDropdown>
-
-
-                <CardColumns>
-                    { posts['posts'] !== undefined && posts['posts'].map( post => (
-                        <div key={ post.id }>
-
-                            <Link className="select-post-link" to={`/${shownCategory}/${post.id}`} key={post.id}>
-                                <Card body inverse color={categoryColors[post.category]} >
-                                    <CardTitle > { post.title } </CardTitle>
-                                    <CardText  > { post.body }  </CardText>
-                                    <CardText>
-                                        <small style={{ color: 'black', opacity: 0.6 }}> { post.author } - { moment(post.timestamp).format("DD/MM/YYYY") } </small>
+                                    <CardText onClick={ () => { this.viewPostInDetail(post.id) }} style={ cardTextStyle }>
+                                        { post.body } <br/>
+                                        <small style={ smallSpanStyle }> { post.author } - { moment(post.timestamp).format("DD/MM/YYYY") } </small>
                                     </CardText>
                                 </Card>
-                            </Link>
+                            </div>
+                        ))) }
+                    </CardColumns>
 
-                        </div>
-                     )) }
-                </CardColumns>
+                <Link to={`/create_post`}  >
+                    <Button style={ fixedAddBtn } >
+                        Add Post
+                    </Button>
+                </Link>
 
+                </Container>
             </div>
+
+
         )
 
     }
 }
 
-function mapStateToProps ({ categories, posts, category }) {
+const mapStateToProps = (state) => {
   return {
-    categories,
-    category,
-    posts,
+    postsForCategory: state.postsForCategory,
+    categories: state.categories,
+    category: state.category,
+    posts: state.posts,
   }
 }
 
 
-function mapDispatchToProps (dispatch) {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setAllCategories: (data) => dispatch(setCategories(data)),
-    setAllPosts: (data) => dispatch(setPosts(data)),
+    setAllPostsForCategory:(data) => dispatch(setPostsForCategory(data)),
+    setAllCategories:   (data) => dispatch(setCategories(data)),
     setShownCategory: (data) => dispatch(setCategory(data)),
+    deletePostById: (data) => dispatch(removePostById(data)),
+    setAllPosts:  (data) => dispatch(setPosts(data)),
   }
 }
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(PostsList)
-

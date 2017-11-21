@@ -4,13 +4,13 @@ import {
   SET_CATEGORY,
   SET_COMMENTS,
   SET_COMMENT,
+  SET_POSTS_FOR_CATEGORY,
+  REMOVE_POST_BY_ID,
 } from '../actions'
 
 import { combineReducers } from 'redux'
 
 function categories (state = {}, action) {
-
-
   switch (action.type) {
     case SET_CATEGORIES:
       const { categories } = action
@@ -33,17 +33,11 @@ function categories (state = {}, action) {
   }
 }
 
-let initlianCommentsState = {
-    comments: []
-}
 
 function comments (state = {}, action) {
     switch(action.type) {
         case SET_COMMENT:
             const { comment } = action
-            console.log("Comment: ", comment)
-            console.log("state comments: ", state.comments)
-
 
             const updatedItems = state.comments.map( state_comment => {
                 if (state_comment.id === comment.id) {
@@ -67,16 +61,33 @@ function comments (state = {}, action) {
     }
 }
 
+
 function posts (state = {}, action) {
-
-
   switch (action.type) {
-    case SET_POSTS :
+    case SET_POSTS:
         const { posts } = action
 
         return {
             ...state,
             posts
+        }
+
+    case SET_POSTS_FOR_CATEGORY:
+        const { postsForCategory } = action
+        console.log("State", state.posts)
+
+        return {
+            ...state,
+            postsForCategory
+        }
+
+    case REMOVE_POST_BY_ID:
+        const { postId } = action
+        let filteredPosts = state.posts.filter( post => post.id !== postId)
+
+        return {
+            ...state,
+            posts: filteredPosts
         }
 
     default :
@@ -86,6 +97,6 @@ function posts (state = {}, action) {
 
 export default combineReducers({
   categories,
-  posts,
-  comments
+  comments,
+  posts ,
 })

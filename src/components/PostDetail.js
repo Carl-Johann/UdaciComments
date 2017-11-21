@@ -2,38 +2,51 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { setCategories, setPosts, setComments, setComment } from '../actions';
 import moment from 'moment';
+import sortBy from 'sort-array'
+import { Link } from 'react-router-dom'
+
+import EditModal from './EditModal'
+import PostComment from './PostComment'
+import Post from './Post'
 
 import * as CategoriesAPI from '../API/CategoriesAPI';
 import * as PostsAPI      from '../API/PostsAPI';
 import * as CommentsAPI   from '../API/CommentsAPI';
 
+import FontAwesome from 'react-fontawesome'
 import {
     ProgressBar, Popover, OverlayTrigger,
-    Media, FormGroup, ControlLabel,
-    FormControl,
+    Media,
 } from 'react-bootstrap';
 import {
     Card, CardTitle, CardText,
     CardColumns, CardSubtitle, CardBody,
     Container, Button, ButtonGroup,
-    Modal,
-    ModalHeader, ModalBody, ModalFooter,
+    Modal, ModalHeader, ModalBody,
+    ModalFooter, FormFeedback, FormGroup,
+    ControlLabel, Input,
 } from 'reactstrap';
 import '../index.css';
 
 class PostDetail extends Component {
 
     state = {
-        postId: "",
         post: {},
         comments: [],
-        voteScore: 0,
         isModalOpen: false,
 
-        createTitle: '',
-        createBody: '',
-        createAuthor: '',
-        createOption: '',
+        inputFields: {
+            body: {
+                state: null,
+                value: '',
+                type: 'textarea',
+            },
+            author: {
+                state: null,
+                value: '',
+                type: 'text',
+            },
+        }
     }
 
 
@@ -49,10 +62,8 @@ class PostDetail extends Component {
 
 
 
-                // We set the default option to the first category, so if the user doens't select an option when creating a comment, it's not blank
-                this.setState({
-                    createOption: categories[0].name
-                })
+                // We set the default option, so if the user doens't select an option when creating a comment, it's not blank
+                this.setState({ createOption: this.props.match.params.category })
             // console.log("From store", this.props.categories)
         })
 
@@ -63,7 +74,8 @@ class PostDetail extends Component {
             // console.log("From store", this.props.posts)
         })
 
-        // If there are posts, we assign the one post with matching id's with the id in the url to state.
+
+        // If there are posts, we assign to state, the one post matching id's with the id in the url.
         if (this.props.posts['posts'] !== undefined) {
 
 
@@ -71,31 +83,27 @@ class PostDetail extends Component {
             var postWithMatichId = this.props.posts['posts'].filter( post => post.id === this.props.match.params.post_id )
 
 
-            // There should only ever be 1 instance with matich id's
+            // There should only ever be 1 instance with matching id's
             let post = postWithMatichId[0]
             this.setState({ post })
         }
 
 
-        // If there's no posts in store. We GET it from server, and assign it to state
+        // If there's no posts in store. We GET it from the server, and assign it to state
         if (this.props.posts[0] === undefined ) {
             PostsAPI.getPostById(this.props.match.params.post_id).then( post => {
                 this.setState({ post, voteScore: post.voteScore })
             })
         }
 
-
-
-        // We get the post_id from url, and set it to state
-        this.setState({ postId: this.props.match.params.post_id })
-
         CommentsAPI.getAllPostsForComment(this.props.match.params.post_id).then( comments => {
             this.setState({ comments })
         })
 
 
-
     }
+
+
 
 
 
@@ -105,160 +113,163 @@ class PostDetail extends Component {
 
 
     postVote = (vote) => {
-        PostsAPI.votePost(this.props.match.params.post_id, vote).then( response_post => {
-
-            switch(vote) {
-            case 'upVote':
-                this.setState({ post: response_post }); break
-            case 'downVote':
-                this.setState({ post: response_post }); break
-            }
+        PostsAPI.votePost(this.props.match.params.post_id, vote).then( post => {
+            this.setState({ post })
         })
     }
 
-    voteOnComment = (commentId, vote) => {
-        CommentsAPI.voteComment(commentId, vote).then( response_comment => {
+    voteOnComment = (Id, vote) => {
+        CommentsAPI.voteComment(Id, vote).then( response_comment => {
             let indexOfComment = null
             this.state.comments.map( (comment, i) => { if (comment.id === response_comment.id) { indexOfComment = i }})
 
             let comments = this.state.comments
             comments[indexOfComment] = response_comment
 
+            this.setState({ comments })
+        })
+    }
+
+
+    onDeleteComment = (Id) => {
+        CommentsAPI.deleteComment(Id).then( response => {
+            let comments = this.state.comments.filter( c => c.id !== Id)
 
             this.setState({ comments })
         })
     }
 
-    closeModal = () => { this.setState({ isModalOpen: false }) }
-
     openModal  = () => { this.setState({ isModalOpen: true  }) }
 
+    closeModal = () => {
+        let inputFieldsEntries = Object.entries(this.state.inputFields)
+        let inputFields = this.state.inputFields
+
+        inputFieldsEntries.forEach(([name, value]) => {
+                inputFields = {
+                    ...inputFields,
+                    [name]: {
+                        ...inputFields[name],
+                        state: null,
+                        value: ''
+                    }
+                }
+            }
+        )
+        this.setState({ isModalOpen: false, inputFields })
+    }
 
 
-    handleTitleChange  = (event) => { this.setState({createTitle:  event.target.value }); }
-    handleBodyChange   = (event) => { this.setState({createBody:   event.target.value }); }
-    handleAuthorChange = (event) => { this.setState({createAuthor: event.target.value }); }
-    handleOptionChange = (event) => { this.setState({createOption: event.target.value }); }
+    handleSubmit = (inputFields) => {
+        let body = inputFields.body
+        let author = inputFields.author
+        let category = this.props.match.params.category
+        let postId = this.props.match.params.post_id
+        let comments = this.state.comments
+
+        CommentsAPI.createComment(body.value, author.value, category, postId).then( response_comment => {
+            this.setState({ comments: comments.concat([response_comment]) })
+        } ).then( this.closeModal() )
+    }
 
 
-    handleSubmit = () => {
-            // console.log(1)
-            CommentsAPI.createComment(this.state.createTitle, this.state.createBody, this.state.createAuthor, this.state.createOption, this.state.postId).then( responst_comment => {
-                // console.log("Create Comment response: ", responst_comment)
+    onEditComment = (comment) => {
+
+        let inputFields = this.state.inputFields
+        inputFields = {
+            ...inputFields,
+                body: {
+                    ...inputFields.body,
+                        value: comment.body
+                },
+                author: {
+                    ...inputFields.author,
+                        value: comment.author
+                }
+
+        }
+
+        this.setState({ inputFields })
+        this.openModal()
+    }
 
 
-                this.setState({
-                    // isModalOpel: false,
-                    comments: this.state.comments.concat([responst_comment])
-                 })
-
-        } ).then(
-            this.closeModal
-        ) }
 
 
 
     render () {
+        const { post_id, category } = this.props.match.params
 
-        const { match, location, history, posts, categories } = this.props
-        const { post,  comments, isModalOpen, createTitle, createBody, createAuthor, createOption, postId } = this.state
-        const { post_id } = this.props.match.params
+        const { match, location, history,
+                posts, categories,
+              } = this.props
 
+        const { post, comments, isModalOpen, postId,
+                inputFields
+              } = this.state
 
+        // We sort the comments by voreScore. We then sort i by author, otherwise,
+        // if two comments have equal votescore, they can start switching positions on render.
+        const sortedComments = sortBy(sortBy(comments, 'voteScore'), 'author')
+
+        const addVoteStyle    = { borderTopLeftRadius:  '0px', backgroundColor: '#59b258', width:'51%', borderWidth: '0px' }
+        const removeVoteStyle = { borderTopRightRadius: '0px', backgroundColor: '#d64c49', width:'51%', borderWidth: '0px' }
+        const cardStyle       = { marginTop: '1em', marginBottom: '1em', backgroundColor: '#e5e5e5' }
+        const addCommentStyle = { width: '100%', marginTop: '16px' }
+        const smallSpanStyle  = { color: 'black', opacity: 0.6 }
+        const titleText       = { textTransform: 'capitalize' }
 
         return (
             <div className="post-detail">
-                <div>
+                {/* Modal that opens when we want to edit or add a comment */}
+                <div id="edit-modal">
                     <Modal isOpen={ isModalOpen } >
                         <ModalHeader toggle={ this.closeModal }> Create Comment </ModalHeader>
-
-                        <ModalBody>
-                            <form onSubmit={ this.handleSubmit }>
-                                <FormGroup controlId="formValidationNull" validationState={null}>
-
-                                    <FormControl required placeholder="Title" value={createTitle} onChange={this.handleTitleChange} type="text" />
-                                    <FormControl placeholder="Body"  value={createBody} onChange={this.handleBodyChange} type="textarea" />
-                                    <FormControl placeholder="Author (you)" value={createAuthor} onChange={this.handleAuthorChange} type="text" />
-
-
-                                    <FormControl defaultValue='React' componentClass="select" onChange={ this.handleOptionChange } style={{ textTransform: 'capitalize' }} placeholder="Select Category">
-                                        <option disabled> Select category... </option>
-                                        { categories['categories'] !== undefined && categories['categories'].map( category => (
-                                            <option name={ category.name } key={ category.name } > { category.name } </option>
-                                        ) )}
-                                    </FormControl>
-
-                                </FormGroup>
-                            </form>
-                        </ModalBody>
-
-                        <ModalFooter>
-                            <Button color="success"   onClick={ this.handleSubmit } > Post Comment </Button>
-                            <Button color="secondary" onClick={  this.closeModal  } > Cancel </Button>
-                        </ModalFooter>
-
+                        <Container>
+                            <EditModal
+                                inputFieldsProps={inputFields}
+                                onEdit={ (inputFields) => this.handleSubmit(inputFields)}
+                                submitBtnText="Post Comment"
+                            />
+                        </Container> <br/>
                     </Modal>
                 </div>
 
+
+                <Link to={`/${category}`}>
+                    <FontAwesome name="angle-left" size="3x" style={{ color: 'gray', marginLeft: '1em', marginTop: '0.4em' }}/>
+                </Link>
+
+
                 <Container className="post-detail-container">
-
-                    <Card style={{ backgroundColor: '#e5e5e5' }}>
-                        <div className="div-card-body">
-
-                            <CardTitle className="title" >
-                                <p className="post-title"> { post.title } </p>
-                            </CardTitle>
-
-                            <CardText>
-                                { post.body } <br/>
-                                Vote Score: { post.voteScore } <br/>
-
-                                <small style={{ color: 'black', opacity: 0.6 }}> { post.author } - { moment( post.timestamp ).format("DD/MM/YYYY") } </small>
-                            </CardText>
-
-                        </div>
-
-                        <ButtonGroup>
-                            <Button className="btn comment-add-vote-score"    onClick={ () => this.postVote("upVote")   } style={{ borderTopLeftRadius:  '0px' , backgroundColor: '#59b258', width:'51%', borderWidth: '0px' }} > + </Button>
-                            <Button className="btn comment-remove-vote-score" onClick={ () => this.postVote("downVote") } style={{ borderTopRightRadius: '0px' , backgroundColor: '#d64c49', width:'51%', borderWidth: '0px' }} > - </Button>
-                        </ButtonGroup>
-
-                    </Card>
-
-                    <Button style={{ width: '100%', marginTop: '16px' }} onClick={ this.openModal }> Add Comment </Button>
-
-                    <div>
-                        { comments.map( comment =>
-                            <Card  key={ comment.id } style={{ marginTop: '1em', marginBottom: '1em', backgroundColor: '#e5e5e5' }}>
-                                <div className="div-card-body">
-                                <Media>
-
-                                    <Media.Body>
-                                        <Media.Heading> { comment.author } </Media.Heading>
-                                        { comment.body } <br/>
-                                        Vote Score: { comment.voteScore } <br/>
-
-                                        <small style={{ color: 'black', opacity: 0.6 }}> Posted - { moment(post.timestamp).format("DD/MM/YYYY") } </small>
-                                    </Media.Body>
-
-                                </Media>
-                                </div>
-
-                                <ButtonGroup>
-                                    <Button className="btn comment-add-vote-score"    onClick={ () =>  this.voteOnComment(comment.id,  "upVote" ) } style={{ borderTopLeftRadius:  '0px' , backgroundColor: '#59b258', width:'51%', borderWidth: '0px' }} > + </Button>
-                                    <Button className="btn comment-remove-vote-score" onClick={ () =>  this.voteOnComment(comment.id, "downVote") } style={{ borderTopRightRadius: '0px' , backgroundColor: '#d64c49', width:'51%', borderWidth: '0px' }} > - </Button>
-                                </ButtonGroup>
-
-                            </Card>
-                        ) }
+                    {/* The post in detail */}
+                    <div id="detail-post">
+                        <Post
+                            post={ post }
+                            onPostVote={ (vote) => this.postVote(vote) }
+                        />
                     </div>
 
-                </Container>
+                    <Button style={ addCommentStyle } onClick={ this.openModal } > Add Comment </Button>
+
+                    {/* The comments */}
+                    <div id="comments">
+                        { sortedComments.map( comment => (
+                            <PostComment key={comment.id}
+                                comment={comment}
+                                voteComment={ (id, vote) => this.voteOnComment(id, vote) }
+                                editComment={ (comment) => this.onEditComment(comment) }
+                                deleteComment={ (id) => this.onDeleteComment(id) }
+                            />
+                        )) }
+                    </div>
+                </Container> <br/>
             </div>
         )
     }
 
 }
+
 
 function mapStateToProps ({ categories, posts, comments }) {
   return {

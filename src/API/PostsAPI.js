@@ -23,13 +23,38 @@ export const getPostById = (Id) =>
         .then(data => data)
 
 
-export const votePost = (Id, vote) =>
-    fetch( `${api}/posts/${Id}`, {
+export const votePost = (id, vote) =>
+    fetch( `${api}/posts/${id}`, {
         method: "post",
-        headers: {
-            ...headers
-        },
+        headers,
         body: JSON.stringify({ option: vote })
 
     } ).then( response => response.json())
 
+export const getPostsByCategory = (category) =>
+    fetch( `${api}/${category}/posts`, { headers })
+        .then(response => response.json())
+        .then(data => data)
+
+
+export const createPost = (title, body, author, category) =>
+    fetch( `${api}/posts`, {
+        method: "post",
+        headers: {
+            ...headers
+        },
+        body: JSON.stringify({
+            id: Math.random().toString(36).substr(-8),
+            title: title,
+            body: body,
+            author: author,
+            category: category,
+            timestamp: Date.now(),
+        })
+
+    }).then( response => response.json() )
+
+export const deletePost = (postId) =>
+    fetch( `${api}/posts/${postId}`, { method: 'delete', headers } )
+        .then( response => response.json() )
+        .then( data => data )
