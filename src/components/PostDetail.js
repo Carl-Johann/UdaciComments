@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { setCategories, setPosts, setComments, setComment } from '../actions';
+import { setCategories, setComments, createComment } from '../actions';
 import moment from 'moment';
 import sortBy from 'sort-array'
 import { Link } from 'react-router-dom'
 
-import EditModal from './EditModal'
+import SubmitFields from './SubmitFields'
 import PostComment from './PostComment'
 import Post from './Post'
 
@@ -31,9 +31,9 @@ import '../index.css';
 class PostDetail extends Component {
 
     state = {
-        post: {},
-        comments: [],
-        isModalOpen: false,
+
+        isCreatePostModalOpen:  false,
+        editingCommentId: '',
 
         inputFields: {
             body: {
@@ -51,97 +51,21 @@ class PostDetail extends Component {
 
 
 
-
-
-
     componentDidMount() {
         CategoriesAPI.getAllCategories().then( categories => {
-            // console.log("From fetch", categories);
-                // Dispatching to store
-                this.props.setAllCategories({categories})
-
-
-
-                // We set the default option, so if the user doens't select an option when creating a comment, it's not blank
-                this.setState({ createOption: this.props.match.params.category })
-            // console.log("From store", this.props.categories)
+            this.props.setCategories({ categories })
         })
 
-        PostsAPI.getAllPosts().then( posts => {
-            // console.log("From fetch", posts)
-                // Dispatching to store
-                this.props.setAllPosts({posts})
-            // console.log("From store", this.props.posts)
-        })
-
-
-        // If there are posts, we assign to state, the one post matching id's with the id in the url.
-        if (this.props.posts['posts'] !== undefined) {
-
-
-            // We get the post with the same id as the one in the url
-            var postWithMatichId = this.props.posts['posts'].filter( post => post.id === this.props.match.params.post_id )
-
-
-            // There should only ever be 1 instance with matching id's
-            let post = postWithMatichId[0]
-            this.setState({ post })
-        }
-
-
-        // If there's no posts in store. We GET it from the server, and assign it to state
-        if (this.props.posts[0] === undefined ) {
-            PostsAPI.getPostById(this.props.match.params.post_id).then( post => {
-                this.setState({ post, voteScore: post.voteScore })
-            })
-        }
-
-        CommentsAPI.getAllPostsForComment(this.props.match.params.post_id).then( comments => {
-            this.setState({ comments })
-        })
-
-
-    }
-
-
-
-
-
-
-
-
-
-
-    postVote = (vote) => {
-        PostsAPI.votePost(this.props.match.params.post_id, vote).then( post => {
-            this.setState({ post })
-        })
-    }
-
-    voteOnComment = (Id, vote) => {
-        CommentsAPI.voteComment(Id, vote).then( response_comment => {
-            let indexOfComment = null
-            this.state.comments.map( (comment, i) => { if (comment.id === response_comment.id) { indexOfComment = i }})
-
-            let comments = this.state.comments
-            comments[indexOfComment] = response_comment
-
-            this.setState({ comments })
+        CommentsAPI.getAllCommentsForPost(this.props.match.params.post_id).then( comments => {
+            this.props.setComments({ comments })
         })
     }
 
 
-    onDeleteComment = (Id) => {
-        CommentsAPI.deleteComment(Id).then( response => {
-            let comments = this.state.comments.filter( c => c.id !== Id)
+    openCreatePostModal  = () => { this.setState({ isCreatePostModalOpen: true }) }
 
-            this.setState({ comments })
-        })
-    }
 
-    openModal  = () => { this.setState({ isModalOpen: true  }) }
-
-    closeModal = () => {
+    closeModals = () => {
         let inputFieldsEntries = Object.entries(this.state.inputFields)
         let inputFields = this.state.inputFields
 
@@ -156,79 +80,53 @@ class PostDetail extends Component {
                 }
             }
         )
-        this.setState({ isModalOpen: false, inputFields })
+
+        this.setState({
+            isCreatePostModalOpen: false,
+            inputFields
+        })
     }
 
 
-    handleSubmit = (inputFields) => {
+    handleCreatePost = (inputFields) => {
         let body = inputFields.body
         let author = inputFields.author
         let category = this.props.match.params.category
         let postId = this.props.match.params.post_id
-        let comments = this.state.comments
+        let comments = this.props.comments.comments
+        let isEditingComment = this.state.isEditCommentModalOpen
+        let isCreatingPost = this.state.isCreatePostModalOpen
 
-        CommentsAPI.createComment(body.value, author.value, category, postId).then( response_comment => {
-            this.setState({ comments: comments.concat([response_comment]) })
-        } ).then( this.closeModal() )
+        CommentsAPI.createComment(body.value, author.value, category, postId).then( comment => {
+            this.props.createComment({ comment })
+        } ).then( this.closeModals() )
     }
-
-
-    onEditComment = (comment) => {
-
-        let inputFields = this.state.inputFields
-        inputFields = {
-            ...inputFields,
-                body: {
-                    ...inputFields.body,
-                        value: comment.body
-                },
-                author: {
-                    ...inputFields.author,
-                        value: comment.author
-                }
-
-        }
-
-        this.setState({ inputFields })
-        this.openModal()
-    }
-
-
 
 
 
     render () {
-        const { post_id, category } = this.props.match.params
+        const { postId, category } = this.props.match.params
+        const { comments } = this.props
+        const { post, isCreatePostModalOpen, isEditCommentModalOpen, inputFields } = this.state
 
-        const { match, location, history,
-                posts, categories,
-              } = this.props
-
-        const { post, comments, isModalOpen, postId,
-                inputFields
-              } = this.state
-
-        // We sort the comments by voreScore. We then sort i by author, otherwise,
+        // We sort the comments by voreScore. We then sort i by body, otherwise,
         // if two comments have equal votescore, they can start switching positions on render.
-        const sortedComments = sortBy(sortBy(comments, 'voteScore'), 'author')
+        const sortedComments = sortBy(sortBy(comments.comments, 'author'), 'voteScore').reverse()
 
-        const addVoteStyle    = { borderTopLeftRadius:  '0px', backgroundColor: '#59b258', width:'51%', borderWidth: '0px' }
-        const removeVoteStyle = { borderTopRightRadius: '0px', backgroundColor: '#d64c49', width:'51%', borderWidth: '0px' }
-        const cardStyle       = { marginTop: '1em', marginBottom: '1em', backgroundColor: '#e5e5e5' }
+
         const addCommentStyle = { width: '100%', marginTop: '16px' }
-        const smallSpanStyle  = { color: 'black', opacity: 0.6 }
-        const titleText       = { textTransform: 'capitalize' }
 
         return (
             <div className="post-detail">
+
                 {/* Modal that opens when we want to edit or add a comment */}
-                <div id="edit-modal">
-                    <Modal isOpen={ isModalOpen } >
-                        <ModalHeader toggle={ this.closeModal }> Create Comment </ModalHeader>
+                <div id="create-post-modal">
+                    <Modal isOpen={ isCreatePostModalOpen } >
+                        <ModalHeader toggle={ this.closeModals }> Create Comment </ModalHeader>
                         <Container>
-                            <EditModal
-                                inputFieldsProps={inputFields}
-                                onEdit={ (inputFields) => this.handleSubmit(inputFields)}
+                            <SubmitFields
+                                inputFieldsProps={ inputFields }
+                                onEdit={ data => this.handleCreatePost(data)}
                                 submitBtnText="Post Comment"
                             />
                         </Container> <br/>
@@ -242,24 +140,22 @@ class PostDetail extends Component {
 
 
                 <Container className="post-detail-container">
+
                     {/* The post in detail */}
                     <div id="detail-post">
                         <Post
-                            post={ post }
-                            onPostVote={ (vote) => this.postVote(vote) }
+                            postId={this.props.match.params.post_id}
                         />
                     </div>
 
-                    <Button style={ addCommentStyle } onClick={ this.openModal } > Add Comment </Button>
+                    <Button style={ addCommentStyle } onClick={ () => this.openCreatePostModal() } > Add Comment </Button>
 
                     {/* The comments */}
                     <div id="comments">
                         { sortedComments.map( comment => (
-                            <PostComment key={comment.id}
-                                comment={comment}
-                                voteComment={ (id, vote) => this.voteOnComment(id, vote) }
-                                editComment={ (comment) => this.onEditComment(comment) }
-                                deleteComment={ (id) => this.onDeleteComment(id) }
+                            <PostComment key={ comment.id }
+                                comment={ comment }
+                                editComment={ comment => this.onEditComment(comment) }
                             />
                         )) }
                     </div>
@@ -271,10 +167,9 @@ class PostDetail extends Component {
 }
 
 
-function mapStateToProps ({ categories, posts, comments }) {
+function mapStateToProps ({ categories, comments }) {
   return {
     categories,
-    posts,
     comments,
   }
 }
@@ -282,10 +177,9 @@ function mapStateToProps ({ categories, posts, comments }) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    setAllCategories: (data) => dispatch(setCategories(data)),
-    setAllPosts: (data) => dispatch(setPosts(data)),
-    setAllComments: (data) => dispatch(setComments(data)),
-    postComment: (data) => dispatch(setComment(data)),
+    setCategories: (data) => dispatch(setCategories(data)),
+    setComments: (data) => dispatch(setComments(data)),
+    createComment: (data) => dispatch(createComment(data)),
   }
 }
 

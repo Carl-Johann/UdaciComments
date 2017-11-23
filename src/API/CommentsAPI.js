@@ -11,7 +11,7 @@ const headers = {
   'Authorization': token
 }
 
-export const getAllPostsForComment = (postId) =>
+export const getAllCommentsForPost = (postId) =>
     fetch( `${api}/posts/${postId}/comments`, { headers } )
         .then( response => response.json() )
         .then( data => data )
@@ -48,3 +48,16 @@ export const deleteComment = (commentId) =>
     fetch( `${api}/comments/${commentId}`, { method: 'delete', headers } )
         .then( response => response.json() )
         .then( data => data )
+
+export const editComment = (commentId, body) =>
+    fetch( `${api}/comments/${commentId}`, {
+        method: "put",
+        headers,
+        body: JSON.stringify({
+            body: body,
+            timestamp: Date.now()
+         })
+
+    })
+    .then( response => response.json())
+    .then( data => data )

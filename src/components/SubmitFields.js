@@ -1,23 +1,14 @@
 import React, { Component } from 'react';
-import { setCategories, setPosts, setComments, setComment } from '../actions';
-import { Link } from 'react-router-dom'
-import { connect } from 'react-redux';
-
 import * as CategoriesAPI from '../API/CategoriesAPI';
-import * as PostsAPI from '../API/PostsAPI';
-
-import FontAwesome from 'react-fontawesome'
+import { setCategories } from '../actions';
+import { connect } from 'react-redux';
 import {
-    Card, CardTitle, CardText,
-    CardColumns, CardSubtitle, CardBody,
-    Container, Button, ButtonGroup,
-    Modal, ModalHeader, ModalBody,
-    ModalFooter, FormFeedback, FormGroup,
-    ControlLabel, Input,
+    FormGroup, ControlLabel, Input,
+    FormFeedback, Button
 } from 'reactstrap';
 
 
-class EditModal extends Component {
+class InputFields extends Component {
 
     state = {
         inputFields: { }
@@ -29,7 +20,7 @@ class EditModal extends Component {
 
         CategoriesAPI.getAllCategories().then( categories => {
             // Dispatching to store
-            this.props.setAllCategories({categories})
+            this.props.setCategories({categories})
         })
 
     }
@@ -53,13 +44,11 @@ class EditModal extends Component {
 
 
     isFormValid = () => {
-        // console.log("isFormValid called")
         let inputFieldsEntries = Object.entries(this.state.inputFields)
         let inputFields = this.state.inputFields
 
         inputFieldsEntries.forEach(([name, value]) => {
             if (value.value.trim() !== "") {
-                // console.log('Value !== ""', value.value)
                 inputFields = {
                     ...inputFields,
                     [name]: {
@@ -68,7 +57,6 @@ class EditModal extends Component {
                     }
                 }
             } else {
-                // console.log('Value === ""', value.value)
                 inputFields = {
                     ...inputFields,
                     [name]: {
@@ -167,10 +155,10 @@ class EditModal extends Component {
                             >
                                 <option disabled> Select category... </option>
                                 <option>  </option>
-                                { categories['categories'] !== undefined && categories['categories'].map( category => (
+                                { categories !== undefined && (categories['categories'] !== undefined && (categories['categories'].map( category => (
                                     <option name={ category.name } key={ category.name }> { category.name } </option>
 
-                                ) )}
+                                ) )))}
                             </Input>
                             <FormFeedback> <span style={ titleText }> '{ name }' </span> field should not be empty! </FormFeedback>
                         </FormGroup>
@@ -184,25 +172,21 @@ class EditModal extends Component {
 }
 
 
-function mapStateToProps ({ categories, posts, comments }) {
+const mapStateToProps = (state) => {
   return {
-    categories,
-    posts,
-    comments,
+    categories: state.categories,
+    posts: state.posts
   }
 }
 
 
-function mapDispatchToProps (dispatch) {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setAllCategories: (data) => dispatch(setCategories(data)),
-    setAllPosts: (data) => dispatch(setPosts(data)),
-    setAllComments: (data) => dispatch(setComments(data)),
-    postComment: (data) => dispatch(setComment(data)),
+    setCategories:   (data) => dispatch(setCategories(data))
   }
 }
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
-)(EditModal)
+  mapDispatchToProps,
+)(InputFields)

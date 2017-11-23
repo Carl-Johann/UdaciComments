@@ -1,11 +1,9 @@
 export const SET_CATEGORIES         = 'SET_CATEGORIES'
-export const SET_POSTS              = 'SET_POSTS'
-export const SET_CATEGORY           = 'SET_CATEGORY'
-export const SET_COMMENTS           = 'SET_COMMENTS'
-export const SET_COMMENT            = 'SET_COMMENT'
 export const SET_POSTS_FOR_CATEGORY = 'SET_POSTS_FOR_CATEGORY'
-export const REMOVE_POST_BY_ID      = 'REMOVE_POST_BY_ID'
-
+export const SET_COMMENTS           = 'SET_COMMENTS'
+export const CREATE_COMMENT         = 'CREATE_COMMENT'
+export const EDIT_COMMENT           = 'EDIT_COMMENT'
+export const DELETE_COMMENT         = 'DELETE_COMMENT'
 
 export function setCategories ({ categories }) {
     return {
@@ -14,46 +12,38 @@ export function setCategories ({ categories }) {
     }
 }
 
-export function setPosts ({ posts }) {
-    return {
-        type: SET_POSTS,
-        posts
-    }
-}
-
-export function setCategory ({ category }) {
-    return {
-        type: SET_CATEGORY,
-        category
-    }
-}
-
-export function setComment ({ comment }) {
-    return {
-        type: SET_COMMENT,
-        comment
-    }
-}
-
-export function setComments ({ comments }) {
-    return {
-        type: SET_COMMENTS,
-        comments
-    }
-}
-
 export function setPostsForCategory ({ postsForCategory }) {
-    console.log(123456, postsForCategory)
     return {
         type: SET_POSTS_FOR_CATEGORY,
         postsForCategory
     }
 }
 
-export function removePostById ({ postId }) {
+export const setComments = ({ comments }) => {
     return {
-        type: REMOVE_POST_BY_ID,
-        postId,
+        type: SET_COMMENTS,
+        comments
+    }
+}
+
+export const createComment = ({ comment }) => {
+    return {
+        type: CREATE_COMMENT,
+        comment
+    }
+}
+
+export const editComment = ({ commentToEdit }) => {
+    return {
+        type: EDIT_COMMENT,
+        commentToEdit
+    }
+}
+
+export const deleteComment = (commentToDeleteId) => {
+    return {
+        type: DELETE_COMMENT,
+        commentToDeleteId
     }
 }
 

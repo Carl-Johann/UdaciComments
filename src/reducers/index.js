@@ -1,11 +1,10 @@
 import {
   SET_CATEGORIES,
-  SET_POSTS,
-  SET_CATEGORY,
-  SET_COMMENTS,
-  SET_COMMENT,
   SET_POSTS_FOR_CATEGORY,
-  REMOVE_POST_BY_ID,
+  SET_COMMENTS,
+  CREATE_COMMENT,
+  EDIT_COMMENT,
+  DELETE_COMMENT,
 } from '../actions'
 
 import { combineReducers } from 'redux'
@@ -20,77 +19,81 @@ function categories (state = {}, action) {
         categories
       }
 
-    case SET_CATEGORY :
-        const { category } = action
-
-        return {
-            ...state,
-            category
-        }
-
-    default :
-      return state
+    default:
+        return state
   }
 }
 
 
-function comments (state = {}, action) {
+let initalCommentsState = {
+    comments: []
+}
+function comments (state = initalCommentsState, action) {
     switch(action.type) {
-        case SET_COMMENT:
-            const { comment } = action
+    case SET_COMMENTS:
+        const { comments } = action
 
-            const updatedItems = state.comments.map( state_comment => {
-                if (state_comment.id === comment.id) {
-                    return { ...state_comment, ...action.comment }
-                }
-                return state_comment
-            })
+        return {
+            ...state,
+            comments
+        }
 
-            return updatedItems
+    case CREATE_COMMENT:
+        const { comment } = action
+        let new_comments = state.comments.concat([comment])
 
-        case SET_COMMENTS:
-            const { comments } = action
+        return {
+            ...state,
+            comments: new_comments
+        }
 
-            return {
-                ...state,
-                comments
-            }
+    case EDIT_COMMENT:
+        const { commentToEdit } = action
 
-        default:
-            return state
+        let indexOfComment = null
+        state.comments.map( (c, index) => { if (c.id === commentToEdit.id) { indexOfComment = index }})
+
+        let newVotedComments = state.comments
+        newVotedComments[indexOfComment] = commentToEdit
+
+        return {
+            ...state,
+            comments: newVotedComments
+        }
+
+    case DELETE_COMMENT:
+        const { commentToDeleteId } = action
+
+        let commentsWithoutDeletedComment = state.comments.filter( c => c.id !== commentToDeleteId)
+
+
+        return {
+            ...state,
+            comments: commentsWithoutDeletedComment
+        }
+
+
+    default:
+        return state
     }
 }
 
 
-function posts (state = {}, action) {
-  switch (action.type) {
-    case SET_POSTS:
-        const { posts } = action
+let initialPostsState = {
+    postsForCategory: []
+}
 
-        return {
-            ...state,
-            posts
-        }
+function posts (state = initialPostsState, action) {
+  switch (action.type) {
 
     case SET_POSTS_FOR_CATEGORY:
         const { postsForCategory } = action
-        console.log("State", state.posts)
-
         return {
             ...state,
             postsForCategory
         }
 
-    case REMOVE_POST_BY_ID:
-        const { postId } = action
-        let filteredPosts = state.posts.filter( post => post.id !== postId)
-
-        return {
-            ...state,
-            posts: filteredPosts
-        }
-
-    default :
+    default:
       return state
   }
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../index.css';
 import { connect } from 'react-redux'
-import { setCategories, setPosts, setCategory, setPostsForCategory, removePostById } from '../actions'
+import { setCategories, setPostsForCategory } from '../actions'
 
 import * as CategoriesAPI from '../API/CategoriesAPI';
 import * as PostsAPI from '../API/PostsAPI';
@@ -26,36 +26,19 @@ class PostsList extends Component {
             'redux' : 'secondary',
             'udacity' : 'danger',
         },
-        shownCategory: '',
-        postsForCategory: [],
-    }
-
-
-    componentWillMount() {
-        this.setState({ postsForCategory: [] })
+        noPosts: false
     }
 
     componentDidMount() {
         CategoriesAPI.getAllCategories().then( categories => {
-            // console.log("From fetch", categories);
-                // Dispatching to store
-                this.props.setAllCategories({categories})
-            console.log("From store1", this.props.categories)
+                this.props.setCategories({ categories })
         })
 
-        PostsAPI.getAllPosts().then( posts => {
-            // console.log("From fetch", posts)
-                // Dispatching to store
-                this.props.setAllPosts({ posts })
-            // console.log("From store", this.props.posts)
-        })
 
-        let shownCategory = this.props.match.params.category
 
-        this.setState({ shownCategory })
-
-        PostsAPI.getPostsByCategory(shownCategory).then( postsForCategory => {
-            this.props.setAllPostsForCategory({ postsForCategory })
+        PostsAPI.getPostsByCategory(this.props.match.params.category).then( postsForCategory => {
+            this.props.setPostsForCategory({ postsForCategory })
+            postsForCategory.length === 0 ? this.setState({ noPosts: true }) : this.setState({ noPosts: false })
         })
 
 
@@ -69,22 +52,18 @@ class PostsList extends Component {
 
 
     deletePost = (postId) => {
-        console.log(13123123123, this.props.posts)
         PostsAPI.deletePost(postId).then( post_response => {
-            console.log(123, post_response)
+            let postsForCategory = this.props.posts.postsForCategory.filter( post => post.id !== postId)
+            this.props.setAllPostsForCategory({ postsForCategory })
 
-            let postsForCategory = this.state.postsForCategory.filter( post=> post.id !== postId)
-            this.props.deletePostById(postId)
-            // this.setState({ postsForCategory })
-
+            postsForCategory.length === 0 ? this.setState({ noPosts: true }) : this.setState({ noPosts: false })
         })
     }
 
 
     render() {
-        const { categories, category, store } = this.props
-        const { postsForCategory, posts } = this.props
-        const { categoryColors, shouldSelectorSlide, shownCategory } = this.state
+        const { categories, category, store, postsForCategory, posts } = this.props
+        const { categoryColors, noPosts } = this.state
 
         const fixedAddBtn = { cursor: 'pointer', position: 'fixed', bottom: '3em', right: '3em', borderColor: '#ffc107', backgroundColor: '#ffc107', color: '#111' }
         const title  = { display: 'inline-block', width: '85%', cursor: 'pointer' }
@@ -104,21 +83,21 @@ class PostsList extends Component {
                     </Link>
                 </span>
 
-                <p className="title unselectable"> { shownCategory } </p>
+                <p className="title unselectable"> { this.props.match.params.category } </p>
 
                 <Container>
 
-                    { posts === undefined && (
-                        <h3 style={ h3Style } onClick={ () => console.log(this.props) }> No posts for this category. Add some... </h3>
+                    { noPosts && (
+                        <h3 style={ h3Style }> No posts for this category. Add some... </h3>
                     )}
 
                     <CardColumns>
-                        { posts.posts !== undefined && ( posts.posts.map( post => (
+                        { posts.postsForCategory !== undefined && ( posts.postsForCategory.map( post => (
                             <div key={ post.id }>
                                 <Card body inverse color={ categoryColors[post.category] }>
                                     <CardTitle >
                                         <p style={ title } onClick={ () => { this.viewPostInDetail(post.id) }}> { post.title } </p>
-                                        <p style={ deleteP } onClick={ () => { this.deletePost(post.id)  }} >
+                                        <p style={ deleteP } onClick={ () => { this.deletePost(post.id) }} >
                                             <FontAwesome name="times" style={times}/>
                                         </p>
                                     </CardTitle>
@@ -149,21 +128,16 @@ class PostsList extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    postsForCategory: state.postsForCategory,
     categories: state.categories,
-    category: state.category,
-    posts: state.posts,
+    posts: state.posts
   }
 }
 
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setAllPostsForCategory:(data) => dispatch(setPostsForCategory(data)),
-    setAllCategories:   (data) => dispatch(setCategories(data)),
-    setShownCategory: (data) => dispatch(setCategory(data)),
-    deletePostById: (data) => dispatch(removePostById(data)),
-    setAllPosts:  (data) => dispatch(setPosts(data)),
+    setPostsForCategory: (data) => dispatch(setPostsForCategory(data)),
+    setCategories:       (data) => dispatch(setCategories(data)),
   }
 }
 
