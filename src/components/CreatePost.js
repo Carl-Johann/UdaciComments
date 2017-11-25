@@ -14,7 +14,7 @@ import {
 
 const CreatePost = ({ goBack, goTo }) => {
 
-    const createPost = (inputFields) => {
+    const createPost = inputFields => {
         let inputFieldsEntries = Object.entries(inputFields)
         let title = inputFields.title.value
         let body = inputFields.body.value
@@ -24,8 +24,7 @@ const CreatePost = ({ goBack, goTo }) => {
 
         PostsAPI.createPost(title, body, author, category).then( response => {
             goTo(`/${category}`)
-        } )
-
+        })
     }
 
     const inputFields = {
@@ -51,7 +50,8 @@ const CreatePost = ({ goBack, goTo }) => {
         },
     }
 
-    const backBtn   = { cursor: 'pointer', color: 'gray', marginLeft: '1em', marginTop: '0.4em' }
+    const backBtn = { cursor: 'pointer', color: 'gray', marginLeft: '1em', marginTop: '0.4em' }
+    const containerStyle = { width: '65%' }
 
     return (
         <div className="create-post">
@@ -61,7 +61,7 @@ const CreatePost = ({ goBack, goTo }) => {
 
             <p className="title unselectable"> Create a Comment </p>
 
-            <Container style={{ width: '65%' }}>
+            <Container style={ containerStyle }>
                 <SubmitFields
                     inputFieldsProps={ inputFields }
                     onEdit={ (inputFields) => createPost(inputFields)}

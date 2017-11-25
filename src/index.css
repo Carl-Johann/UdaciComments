@@ -6,7 +6,7 @@ body {
 }
 
 .title {
-  font-size: 400%;
+  font-size: 300%;
   text-align: center;
   margin-top: 0.2em;
   margin-bottom: 0.4em;
@@ -81,8 +81,8 @@ body {
 }
 
 .card-title {
-    font-size: 30;
- }
+  font-size: 30;
+}
 
  .card-text {
    font-weight: 500
@@ -101,7 +101,6 @@ body {
 }
 
 .comment-add-vote-score {
-
   width: 51%;
   border-width: 00px;
   border-top-left-radius: 0px;
@@ -132,3 +131,53 @@ body {
 .edit-comment {
   cursor: pointer
 }
+
+.add-post-button123 {
+  width: 250px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  text-align: center;
+}
+
+#sort-btn {
+  background-color: #ffc107;
+  color: #111;
+  cursor: pointer;
+  /*border-width: 0 0 0 1px;*/
+  /*border-radius: 4px 4px 4px 4px;*/
+  border-radius: 4px;
+}
+
+#sort-btn:hover {
+  background-color: #f1b503;
+  color: #111;
+  cursor: pointer;
+}
+#btn.btn-secondary.sort-btn.active {
+  background-color: #f1b503;
+  color: #111;
+}
+
+
+
+#first-sort-btn {
+  border-radius: 4px;
+  border-width: 0 0 0 0;
+}
+
+
+.add-post-btn {
+  cursor: pointer;
+  position: fixed;
+  bottom: 3em;
+  right: 3em;
+  border-color: #ffc107;
+  background-color: #ffc107;
+  color: #111;
+  border-radius: 4px;
+}
+
+.add-post-btn:hover {
+  background-color: #f1b503;
+  color: #111;
+}
+

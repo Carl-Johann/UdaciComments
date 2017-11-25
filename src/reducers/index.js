@@ -5,9 +5,21 @@ import {
   CREATE_COMMENT,
   EDIT_COMMENT,
   DELETE_COMMENT,
+  SET_POST_IN_DETAIL,
+  EDIT_POST
 } from '../actions'
 
 import { combineReducers } from 'redux'
+
+
+
+
+
+
+
+
+
+
 
 function categories (state = {}, action) {
   switch (action.type) {
@@ -23,6 +35,15 @@ function categories (state = {}, action) {
         return state
   }
 }
+
+
+
+
+
+
+
+
+
 
 
 let initalCommentsState = {
@@ -62,14 +83,11 @@ function comments (state = initalCommentsState, action) {
         }
 
     case DELETE_COMMENT:
-        const { commentToDeleteId } = action
-
-        let commentsWithoutDeletedComment = state.comments.filter( c => c.id !== commentToDeleteId)
-
+        const { cleanComments } = action
 
         return {
             ...state,
-            comments: commentsWithoutDeletedComment
+            comments: cleanComments
         }
 
 
@@ -79,8 +97,18 @@ function comments (state = initalCommentsState, action) {
 }
 
 
+
+
+
+
+
+
+
+
+
 let initialPostsState = {
-    postsForCategory: []
+    postsForCategory: [],
+    postInDetail: {},
 }
 
 function posts (state = initialPostsState, action) {
@@ -91,6 +119,29 @@ function posts (state = initialPostsState, action) {
         return {
             ...state,
             postsForCategory
+        }
+
+
+    case SET_POST_IN_DETAIL:
+        const { postInDetail } = action
+
+        return {
+            ...state,
+            postInDetail
+        }
+
+    case EDIT_POST:
+        const { postToEdit } = action
+
+        let indexOfPost = null
+        state.postsForCategory.map( (p, index) => { if (p.id === postToEdit.id) { indexOfPost = index }})
+
+        let newPosts = state.postsForCategory
+        newPosts[indexOfPost] = postToEdit
+
+        return {
+            ...state,
+            postsForCategory: newPosts
         }
 
     default:

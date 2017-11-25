@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { setCategories } from '../actions';
+import { actionSetCategories } from '../actions/thunkActions'
 import * as CategoriesAPI from '../API/CategoriesAPI';
 import { Link } from 'react-router-dom'
 
@@ -10,16 +10,14 @@ import { Card, CardTitle, Container } from 'reactstrap';
 class CategorySelect extends Component {
 
     componentDidMount() {
-        CategoriesAPI.getAllCategories().then( categories => {
-            this.props.setCategories({ categories })
-        })
+        this.props.actionSetCategories()
     }
 
 
     render() {
         const { categories } = this.props
 
-        const cardStyle = { marginTop: '2em', marginBottom: '2em', backgroundColor: '#e5e5e5' }
+        const cardStyle = { marginTop: '2em', marginBottom: '2em', backgroundColor: 'white' }
         const categoryContainer = { marginTop: '10vh' }
         const cardTitle = { textAlign: 'center', textTransform: 'capitalize' }
 
@@ -30,11 +28,13 @@ class CategorySelect extends Component {
                 <Container style={ categoryContainer }>
                     { categories.categories !== undefined && ( categories.categories.map( category => (
                         <Link className="select-category-link" to={`/${category.name}/`} key={ category.name } >
+
                             <Card body key={ category.name } style={ cardStyle }>
                                 <CardTitle style={ cardTitle }>
                                     { category.name }
                                 </CardTitle>
                             </Card>
+
                         </Link>
                     ) ))}
                 </Container>
@@ -54,7 +54,7 @@ function mapStateToProps ({ categories }) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    setCategories: (data) => dispatch(setCategories(data))
+    actionSetCategories: (data) => dispatch(actionSetCategories(data))
   }
 }
 

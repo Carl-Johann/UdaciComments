@@ -26,7 +26,7 @@ export const voteComment = (commentId, vote) =>
     .then( response => response.json())
     .then( data => data )
 
-export const createComment = (body, author, category, parentId) =>
+export const createComment = (body, author, category, postId) =>
     fetch( `${api}/comments`, {
         method: "post",
         headers: {
@@ -38,7 +38,7 @@ export const createComment = (body, author, category, parentId) =>
             author: author,
             category: category,
             timestamp: Date.now(),
-            parentId: parentId
+            parentId: postId
         })
 
     }).then( response => response.json())

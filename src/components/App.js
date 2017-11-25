@@ -5,7 +5,6 @@ import PostDetail from './PostDetail'
 import CategorySelect from './CategorySelect'
 import CreatePost from './CreatePost'
 
-import { setCategories, setPosts } from '../actions'
 import { connect } from 'react-redux'
 import * as CategoriesAPI from '../API/CategoriesAPI';
 import * as PostsAPI from '../API/PostsAPI';

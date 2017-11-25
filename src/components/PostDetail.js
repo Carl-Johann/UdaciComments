@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { setCategories, setComments, createComment } from '../actions';
+import { actionSetCategories, actionSetAllCommentsForPost, actionCreateComment } from '../actions/thunkActions'
 import moment from 'moment';
 import sortBy from 'sort-array'
 import { Link } from 'react-router-dom'
@@ -9,15 +9,10 @@ import SubmitFields from './SubmitFields'
 import PostComment from './PostComment'
 import Post from './Post'
 
-import * as CategoriesAPI from '../API/CategoriesAPI';
 import * as PostsAPI      from '../API/PostsAPI';
 import * as CommentsAPI   from '../API/CommentsAPI';
 
 import FontAwesome from 'react-fontawesome'
-import {
-    ProgressBar, Popover, OverlayTrigger,
-    Media,
-} from 'react-bootstrap';
 import {
     Card, CardTitle, CardText,
     CardColumns, CardSubtitle, CardBody,
@@ -45,27 +40,23 @@ class PostDetail extends Component {
                 state: null,
                 value: '',
                 type: 'text',
-            },
+            }
         }
     }
 
 
 
     componentDidMount() {
-        CategoriesAPI.getAllCategories().then( categories => {
-            this.props.setCategories({ categories })
-        })
+        this.props.actionSetCategories()
 
-        CommentsAPI.getAllCommentsForPost(this.props.match.params.post_id).then( comments => {
-            this.props.setComments({ comments })
-        })
+        this.props.actionSetAllCommentsForPost(this.props.match.params.post_id)
     }
 
 
     openCreatePostModal  = () => { this.setState({ isCreatePostModalOpen: true }) }
 
 
-    closeModals = () => {
+    closeModal = () => {
         let inputFieldsEntries = Object.entries(this.state.inputFields)
         let inputFields = this.state.inputFields
 
@@ -89,17 +80,16 @@ class PostDetail extends Component {
 
 
     handleCreatePost = (inputFields) => {
-        let body = inputFields.body
-        let author = inputFields.author
+        let body = inputFields.body.value
+        let author = inputFields.author.value
         let category = this.props.match.params.category
         let postId = this.props.match.params.post_id
         let comments = this.props.comments.comments
         let isEditingComment = this.state.isEditCommentModalOpen
         let isCreatingPost = this.state.isCreatePostModalOpen
 
-        CommentsAPI.createComment(body.value, author.value, category, postId).then( comment => {
-            this.props.createComment({ comment })
-        } ).then( this.closeModals() )
+        this.props.actionCreateComment(body, author, category, postId)
+        .then( this.closeModal() )
     }
 
 
@@ -108,6 +98,7 @@ class PostDetail extends Component {
         const { postId, category } = this.props.match.params
         const { comments } = this.props
         const { post, isCreatePostModalOpen, isEditCommentModalOpen, inputFields } = this.state
+        const { post_id } = this.props.match.params
 
         // We sort the comments by voreScore. We then sort i by body, otherwise,
         // if two comments have equal votescore, they can start switching positions on render.
@@ -122,7 +113,7 @@ class PostDetail extends Component {
                 {/* Modal that opens when we want to edit or add a comment */}
                 <div id="create-post-modal">
                     <Modal isOpen={ isCreatePostModalOpen } >
-                        <ModalHeader toggle={ this.closeModals }> Create Comment </ModalHeader>
+                        <ModalHeader toggle={ this.closeModal }> Create Comment </ModalHeader>
                         <Container>
                             <SubmitFields
                                 inputFieldsProps={ inputFields }
@@ -144,7 +135,7 @@ class PostDetail extends Component {
                     {/* The post in detail */}
                     <div id="detail-post">
                         <Post
-                            postId={this.props.match.params.post_id}
+                            postId={post_id}
                         />
                     </div>
 
@@ -159,6 +150,7 @@ class PostDetail extends Component {
                             />
                         )) }
                     </div>
+
                 </Container> <br/>
             </div>
         )
@@ -167,9 +159,8 @@ class PostDetail extends Component {
 }
 
 
-function mapStateToProps ({ categories, comments }) {
+function mapStateToProps ({ comments }) {
   return {
-    categories,
     comments,
   }
 }
@@ -177,9 +168,9 @@ function mapStateToProps ({ categories, comments }) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    setCategories: (data) => dispatch(setCategories(data)),
-    setComments: (data) => dispatch(setComments(data)),
-    createComment: (data) => dispatch(createComment(data)),
+    actionSetCategories: () => dispatch(actionSetCategories()),
+    actionSetAllCommentsForPost: (postId) => dispatch(actionSetAllCommentsForPost(postId)),
+    actionCreateComment: (bodyValue, authorValue, category, postId) => dispatch(actionCreateComment(bodyValue, authorValue, category, postId)),
   }
 }
 

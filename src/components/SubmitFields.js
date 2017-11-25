@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as CategoriesAPI from '../API/CategoriesAPI';
-import { setCategories } from '../actions';
+import { actionSetCategories } from '../actions/thunkActions'
 import { connect } from 'react-redux';
 import {
     FormGroup, ControlLabel, Input,
@@ -18,10 +18,7 @@ class InputFields extends Component {
         let inputFields = this.props.inputFieldsProps
         this.setState({ inputFields })
 
-        CategoriesAPI.getAllCategories().then( categories => {
-            // Dispatching to store
-            this.props.setCategories({categories})
-        })
+        this.props.actionSetCategories
 
     }
 
@@ -126,6 +123,7 @@ class InputFields extends Component {
                             value={ value.value }
                             onChange={ this.handleChange }
                         />
+
                         <FormFeedback> <span style={ titleText }> '{ name } '</span> field should not be empty! </FormFeedback>
                     </FormGroup>
 
@@ -141,6 +139,7 @@ class InputFields extends Component {
                                 value={ value.value }
                                 onChange={ this.handleChange }
                             />
+
                             <FormFeedback> <span style={ titleText }> '{ name }' </span> field should not be empty! </FormFeedback>
                         </FormGroup>
 
@@ -160,6 +159,7 @@ class InputFields extends Component {
 
                                 ) )))}
                             </Input>
+
                             <FormFeedback> <span style={ titleText }> '{ name }' </span> field should not be empty! </FormFeedback>
                         </FormGroup>
                     )
@@ -182,7 +182,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setCategories:   (data) => dispatch(setCategories(data))
+    actionSetCategories: (data) => dispatch(actionSetCategories(data))
   }
 }
 

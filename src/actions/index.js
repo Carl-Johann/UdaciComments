@@ -4,6 +4,8 @@ export const SET_COMMENTS           = 'SET_COMMENTS'
 export const CREATE_COMMENT         = 'CREATE_COMMENT'
 export const EDIT_COMMENT           = 'EDIT_COMMENT'
 export const DELETE_COMMENT         = 'DELETE_COMMENT'
+export const SET_POST_IN_DETAIL     = 'SET_POST_IN_DETAIL'
+export const EDIT_POST              = 'EDIT_POST'
 
 export function setCategories ({ categories }) {
     return {
@@ -40,10 +42,24 @@ export const editComment = ({ commentToEdit }) => {
     }
 }
 
-export const deleteComment = (commentToDeleteId) => {
+export const editPost = ({ postToEdit }) => {
+    return {
+        type: EDIT_POST,
+        postToEdit
+    }
+}
+
+export const deleteComment = ({ cleanComments }) => {
     return {
         type: DELETE_COMMENT,
-        commentToDeleteId
+        cleanComments
+    }
+}
+
+export const setPostInDetail = ({ postInDetail }) => {
+    return {
+        type: SET_POST_IN_DETAIL,
+        postInDetail
     }
 }
 
