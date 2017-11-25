@@ -2,7 +2,7 @@
 
 
 ## To run the web app
-In the project directory:
+In the project directory: <br>
 run `npm install`
 
 and then:
