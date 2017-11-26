@@ -1,6 +1,4 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom'
-import { connect } from 'react-redux';
+import React from 'react';
 
 import SubmitFields from './SubmitFields'
 import * as PostsAPI from '../API/PostsAPI';
@@ -15,7 +13,7 @@ import {
 const CreatePost = ({ goBack, goTo }) => {
 
     const createPost = inputFields => {
-        let inputFieldsEntries = Object.entries(inputFields)
+        // let inputFieldsEntries = Object.entries(inputFields)
         let title = inputFields.title.value
         let body = inputFields.body.value
         let author = inputFields.author.value

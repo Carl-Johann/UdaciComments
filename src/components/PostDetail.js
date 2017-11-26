@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { actionSetCategories, actionSetAllCommentsForPost, actionCreateComment } from '../actions/thunkActions'
-import moment from 'moment';
+import { setPostInDetail } from '../actions'
+import { actionSetCategories, actionSetAllCommentsForPost, actionCreateComment, actionSetPostByPostId } from '../actions/thunkActions'
+// import moment from 'moment';
 import sortBy from 'sort-array'
 import { Link } from 'react-router-dom'
 
@@ -9,26 +10,22 @@ import SubmitFields from './SubmitFields'
 import PostComment from './PostComment'
 import Post from './Post'
 
-import * as PostsAPI      from '../API/PostsAPI';
-import * as CommentsAPI   from '../API/CommentsAPI';
+// import * as PostsAPI      from '../API/PostsAPI';
+// import * as CommentsAPI   from '../API/CommentsAPI';
 
 import FontAwesome from 'react-fontawesome'
 import {
-    Card, CardTitle, CardText,
-    CardColumns, CardSubtitle, CardBody,
-    Container, Button, ButtonGroup,
-    Modal, ModalHeader, ModalBody,
-    ModalFooter, FormFeedback, FormGroup,
-    ControlLabel, Input,
+    Container, Button, Modal,
+    ModalHeader,
 } from 'reactstrap';
 import '../index.css';
 
 class PostDetail extends Component {
 
     state = {
-
-        isCreatePostModalOpen:  false,
+        isCreatePostModalOpen: false,
         editingCommentId: '',
+        post: {},
 
         inputFields: {
             body: {
@@ -47,13 +44,32 @@ class PostDetail extends Component {
 
 
     componentDidMount() {
-        this.props.actionSetCategories()
 
+        let postInDetail = this.props.postInDetail
+
+
+        this.props.actionSetPostByPostId(this.props.match.params.post_id)
+
+        // If the store doens't contain the post in detail
+        if (Object.getOwnPropertyNames(postInDetail).length === 0) {
+            // We get the post in detail
+            this.props.actionSetPostByPostId(this.props.match.params.post_id).then( postInDetail => {
+                // And if no post is returned, the post has been deleted, and doesn't exist in either the store or on the server
+                if (Object.getOwnPropertyNames(postInDetail).length === 0) {
+                    // We navigate back to the main page
+                    this.props.history.push("/")
+                } else {
+                    // It exists so we set it to state
+                    console.log("boi")
+                    this.props.setPostInDetail({ postInDetail })
+                }
+            })
+        }
+        this.props.actionSetCategories()
         this.props.actionSetAllCommentsForPost(this.props.match.params.post_id)
     }
 
-
-    openCreatePostModal  = () => { this.setState({ isCreatePostModalOpen: true }) }
+    openCreatePostModal = () => { this.setState({ isCreatePostModalOpen: true }) }
 
 
     closeModal = () => {
@@ -84,9 +100,6 @@ class PostDetail extends Component {
         let author = inputFields.author.value
         let category = this.props.match.params.category
         let postId = this.props.match.params.post_id
-        let comments = this.props.comments.comments
-        let isEditingComment = this.state.isEditCommentModalOpen
-        let isCreatingPost = this.state.isCreatePostModalOpen
 
         this.props.actionCreateComment(body, author, category, postId)
         .then( this.closeModal() )
@@ -95,10 +108,9 @@ class PostDetail extends Component {
 
 
     render () {
-        const { postId, category } = this.props.match.params
+        const { category } = this.props.match.params
         const { comments } = this.props
-        const { post, isCreatePostModalOpen, isEditCommentModalOpen, inputFields } = this.state
-        const { post_id } = this.props.match.params
+        const { isCreatePostModalOpen, inputFields } = this.state
 
         // We sort the comments by voreScore. We then sort i by body, otherwise,
         // if two comments have equal votescore, they can start switching positions on render.
@@ -135,7 +147,7 @@ class PostDetail extends Component {
                     {/* The post in detail */}
                     <div id="detail-post">
                         <Post
-                            postId={post_id}
+
                         />
                     </div>
 
@@ -159,9 +171,12 @@ class PostDetail extends Component {
 }
 
 
-function mapStateToProps ({ comments }) {
+function mapStateToProps ({ comments, posts }) {
   return {
     comments,
+    posts,
+    postsForCategory: posts.postsForCategory,
+    postInDetail: posts.postInDetail
   }
 }
 
@@ -171,6 +186,8 @@ function mapDispatchToProps (dispatch) {
     actionSetCategories: () => dispatch(actionSetCategories()),
     actionSetAllCommentsForPost: (postId) => dispatch(actionSetAllCommentsForPost(postId)),
     actionCreateComment: (bodyValue, authorValue, category, postId) => dispatch(actionCreateComment(bodyValue, authorValue, category, postId)),
+    actionSetPostByPostId: (postId) => dispatch(actionSetPostByPostId(postId)),
+    setPostInDetail: (postInDetail) => dispatch(setPostInDetail(postInDetail)),
   }
 }
 

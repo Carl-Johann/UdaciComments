@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { editComment, deleteComment } from '../actions';
 import { actionDeleteComment, actionEditComment, actionVoteComment } from '../actions/thunkActions'
 import moment from 'moment';
 
@@ -72,7 +71,7 @@ class PostComment extends Component {
         const smallSpanStyle  = { color: 'black', opacity: 0.6 }
 
         const { isEditCommentModalOpen, inputFields } = this.state
-        const { postId, comment, editComment } = this.props
+        const { comment } = this.props
 
         return (
             <div>

@@ -40,9 +40,7 @@ export const getPostsByCategory = (category) =>
 export const createPost = (title, body, author, category) =>
     fetch( `${api}/posts`, {
         method: "post",
-        headers: {
-            ...headers
-        },
+        headers,
         body: JSON.stringify({
             id: Math.random().toString(36).substr(-8),
             title: title,

@@ -164,6 +164,9 @@ body {
   border-width: 0 0 0 0;
 }
 
+#card-text {
+    text-decoration: none;
+}
 
 .add-post-btn {
   cursor: pointer;

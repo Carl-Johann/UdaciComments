@@ -1,3 +1,4 @@
+
 import {
   SET_CATEGORIES,
   SET_POSTS_FOR_CATEGORY,
@@ -6,8 +7,10 @@ import {
   EDIT_COMMENT,
   DELETE_COMMENT,
   SET_POST_IN_DETAIL,
-  EDIT_POST
-} from '../actions'
+  EDIT_POST,
+  SET_ALL_POSTS,
+  EDIT_POST_IN_ALL_POSTS,
+} from '../actions/ActionTypes.js'
 
 import { combineReducers } from 'redux'
 
@@ -19,13 +22,15 @@ import { combineReducers } from 'redux'
 
 
 
+let initialCategoriesState = {
+    categories: []
+}
 
-
-function categories (state = {}, action) {
+function categories (state = initialCategoriesState, action) {
   switch (action.type) {
     case SET_CATEGORIES:
       const { categories } = action
-
+    //   console.log(123)
       return {
         ...state,
         categories
@@ -76,7 +81,6 @@ function comments (state = initalCommentsState, action) {
 
         let newVotedComments = state.comments
         newVotedComments[indexOfComment] = commentToEdit
-
         return {
             ...state,
             comments: newVotedComments
@@ -105,8 +109,8 @@ function comments (state = initalCommentsState, action) {
 
 
 
-
 let initialPostsState = {
+    allPosts: [],
     postsForCategory: [],
     postInDetail: {},
 }
@@ -124,7 +128,7 @@ function posts (state = initialPostsState, action) {
 
     case SET_POST_IN_DETAIL:
         const { postInDetail } = action
-
+        // console.log("set post in detail:", postInDetail.title)
         return {
             ...state,
             postInDetail
@@ -144,6 +148,29 @@ function posts (state = initialPostsState, action) {
             postsForCategory: newPosts
         }
 
+    case SET_ALL_POSTS:
+        const { allPosts } = action
+
+        return {
+            ...state,
+            allPosts
+        }
+
+    case EDIT_POST_IN_ALL_POSTS:
+        const { editPost } = action
+
+        let indexOfnewPost = null
+        state.allPosts.map( (p, index) => { if (p.id === editPost.id) { indexOfnewPost = index }})
+
+        let editedPosts = state.allPosts
+        editedPosts[indexOfnewPost] = editPost
+
+        return {
+            ...state,
+            allPosts: editedPosts
+        }
+
+
     default:
       return state
   }
@@ -152,5 +179,5 @@ function posts (state = initialPostsState, action) {
 export default combineReducers({
   categories,
   comments,
-  posts ,
+  posts,
 })

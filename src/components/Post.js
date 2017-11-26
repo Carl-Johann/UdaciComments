@@ -5,8 +5,7 @@ import {
     Card, CardTitle, CardText,
     Button, ButtonGroup,
 } from 'reactstrap';
-import { actionSetCategories, actionSetPostsForCategory, actionDeletePost } from '../actions/thunkActions'
-import * as PostsAPI from '../API/PostsAPI';
+
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
 
@@ -14,11 +13,8 @@ import moment from 'moment'
 class Post extends Component  {
 
     componentDidMount() {
-
-        let postId = this.props.postId
-        this.props.actionSetPostByPostId(postId)
+        console.log(this.props.posts.postInDetail)
     }
-
 
     postVote = (vote) => {
 
@@ -32,7 +28,9 @@ class Post extends Component  {
         const addVoteStyle    = { borderTopLeftRadius:  '0px', backgroundColor: '#59b258', width:'51%', borderWidth: '0px' }
         const removeVoteStyle = { borderTopRightRadius: '0px', backgroundColor: '#d64c49', width:'51%', borderWidth: '0px' }
 
-        const { postInDetail } = this.props.posts
+        // const { postInDetail  } = this.props.posts
+        const { posts } = this.props
+        const { postInDetail } = posts
 
         return (
             <div id="post-in-detail">
@@ -47,6 +45,7 @@ class Post extends Component  {
                                 <CardText>
                                     { postInDetail.body } <br/>
                                     Vote Score: { postInDetail.voteScore } <br/>
+                                    { postInDetail.commentCount === 0 ? 'No Comments' : (postInDetail.commentCount > 1 ? postInDetail.commentCount + ' Comments' : '1 Comment') } <br/>
                                     <small style={ smallSpanStyle }> { postInDetail.author } - { moment( postInDetail.timestamp ).format("DD/MM/YYYY") } </small>
                                 </CardText>
                             </div>
@@ -73,7 +72,8 @@ class Post extends Component  {
 
 function mapStateToProps ({ posts }) {
   return {
-    posts
+    posts,
+    postInDetail: posts.postInDetail
   }
 }
 

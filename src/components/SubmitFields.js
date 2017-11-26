@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import * as CategoriesAPI from '../API/CategoriesAPI';
 import { actionSetCategories } from '../actions/thunkActions'
 import { connect } from 'react-redux';
 import {
-    FormGroup, ControlLabel, Input,
+    FormGroup, Input,
     FormFeedback, Button
 } from 'reactstrap';
 
@@ -18,7 +17,7 @@ class InputFields extends Component {
         let inputFields = this.props.inputFieldsProps
         this.setState({ inputFields })
 
-        this.props.actionSetCategories
+        // this.props.actionSetCategories
 
     }
 
@@ -101,12 +100,12 @@ class InputFields extends Component {
 
     render() {
 
-        const { inputFields } = this.state
-        const { goBack, categories, submitBtnText } = this.props
-        const { title, body, author } = inputFields
+        // const { inputFields } = this.state
+        const { categories, submitBtnText } = this.props
+        // const { title, body, author } = inputFields
 
         const titleText = { textTransform: 'capitalize' }
-        const backBtn   = { cursor: 'pointer', color: 'gray', marginLeft: '1em', marginTop: '0.4em' }
+        // const backBtn   = { cursor: 'pointer', color: 'gray', marginLeft: '1em', marginTop: '0.4em' }
         const textArea  = { minHeight: '62px' }
 
         return (
@@ -138,6 +137,7 @@ class InputFields extends Component {
                                 valid={ value.state }
                                 value={ value.value }
                                 onChange={ this.handleChange }
+                                style={ textArea }
                             />
 
                             <FormFeedback> <span style={ titleText }> '{ name }' </span> field should not be empty! </FormFeedback>
