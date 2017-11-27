@@ -1,16 +1,24 @@
 ## Carl-Johan's Udacity 'UdaciComments' Project
 
 
-## To run the web app
-In the project directory: <br>
+----------
 
-run `npm install`
+ - Clone or fork the: [Repository](https://github.com/udacity/reactnd-project-readable-starter)
+ - Install the dependencies  with `npm install`
+ - Run the server with `node server`
 
-and then:
+----------
 
-`npm start`
+
+Then navigate to this project folder and run:
+
+---------
+- `npm install`
+- `npm start`
+
+---------
 
 This will run the app in development mode. <br>
 
-Open [http://localhost:3000](http://localhost:3000ç) to view it in the browser.
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits, and save. <br>
