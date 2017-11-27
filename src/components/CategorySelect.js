@@ -5,7 +5,7 @@ import sortBy from 'sort-array'
 
 import { Link } from 'react-router-dom'
 import { setPostInDetail } from '../actions'
-import { actionSetCategories, actionSetPostsForCategory, actionDeletePost, actionClearPostsForCategory, actionEditPost, actionSetAllPosts, actionEditAPostInAllPosts } from '../actions/thunkActions'
+import { actionSetCategories, actionSetPostsForCategory, actionDeletePost, actionClearPostsForCategory, actionEditPost, actionSetAllPosts, actionEditAPostInAllPosts, actionVotePost } from '../actions/thunkActions'
 import CardPost from './CardPost'
 
 import {
@@ -22,13 +22,24 @@ class CategorySelect extends Component {
     }
 
     componentDidMount() {
+        console.log("CategorySelect did mount ")
+
         this.props.actionSetCategories()
-        this.props.actionSetAllPosts()
+        // this.props.actionSetAllPosts()
+        if (this.props.allPosts === undefined) this.props.actionSetAllPosts()
     }
 
     onOrderButtonClick = (orderBy) => {
         this.setState({ orderBy })
     }
+
+
+    // onVote = (vote, post) => {
+    //     // We need to modify 'allPosts'. This post in 'allPosts'
+
+    //     this.props.actionVotePost(post.id, vote)
+    // }
+
 
 
     render() {
@@ -40,6 +51,7 @@ class CategorySelect extends Component {
         const cardTitle = { textAlign: 'center', textTransform: 'capitalize' }
 
         const sortedPosts = (category) => {
+
             let posts = this.props.posts.allPosts.filter( p => p.category === category.name )
             switch(orderBy) {
             case 'author':
@@ -66,7 +78,7 @@ class CategorySelect extends Component {
                             </Link>
 
 
-
+                            {/* From allPosts from store. Just got the posts for each category */}
                             { posts.allPosts !== undefined && ( sortedPosts(category).length !== 0 ?
                                 <CardColumns >
                                     { sortedPosts(category).map( post => (
@@ -76,6 +88,7 @@ class CategorySelect extends Component {
                                             post={ post }
                                             openEditModal={ (postId) => this.openEditModal(post)}
                                             goTo={ (location) => this.props.goTo(location) }
+                                            /*onVote={ (vote) => this.onVote(vote, post)}*/
                                         />
 
                                     )) }
@@ -119,7 +132,8 @@ const mapDispatchToProps = (dispatch) => {
     actionEditPost: (title, body, postId) => dispatch(actionEditPost(title, body, postId)),
     setPostInDetail: (postInDetail) => dispatch(setPostInDetail(postInDetail)),
     actionSetAllPosts: () => dispatch(actionSetAllPosts()),
-    actionEditAPostInAllPosts: (title, body, postId) => dispatch(actionEditAPostInAllPosts(title, body, postId))
+    actionEditAPostInAllPosts: (title, body, postId) => dispatch(actionEditAPostInAllPosts(title, body, postId)),
+    actionVotePost: (postId, vote) => dispatch(actionVotePost(postId, vote)),
   }
 }
 

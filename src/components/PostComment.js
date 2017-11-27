@@ -65,8 +65,8 @@ class PostComment extends Component {
 
     render() {
 
-        const addVoteStyle    = { borderTopLeftRadius:  '0px', backgroundColor: '#59b258', width:'51%', borderWidth: '0px' }
-        const removeVoteStyle = { borderTopRightRadius: '0px', backgroundColor: '#d64c49', width:'51%', borderWidth: '0px' }
+        const addVoteStyle    = { borderTopLeftRadius:  '0px', backgroundColor: '#59b258', width:'51%', borderWidth: '0px', cursor: 'pointer' }
+        const removeVoteStyle = { borderTopRightRadius: '0px', backgroundColor: '#d64c49', width:'51%', borderWidth: '0px', cursor: 'pointer' }
         const cardStyle       = { marginTop: '1em', marginBottom: '1em', backgroundColor: '#d5d3d3' }
         const smallSpanStyle  = { color: 'black', opacity: 0.6 }
 

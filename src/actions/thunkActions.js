@@ -42,13 +42,7 @@ export const actionSetCategories = () => {
 }
 
 
-export const actionSetAllCommentsForPost = (postId) => {
-    return dispatch => {
-        return CommentsAPI.getAllCommentsForPost(postId).then( comments => {
-            dispatch(setComments({ comments }))
-        })
-    }
-}
+
 
 
 export const actionCreateComment = (body, author, category, postId) => {
@@ -70,19 +64,7 @@ export const actionSetPostsForCategory = (category) => {
 }
 
 
-export const actionDeletePost = (postId) => {
-    return (dispatch, getState) => {
-        return PostsAPI.deletePost(postId).then( post => {
-            let postsForCategory = getState().posts.postsForCategory.filter( post => post.id !== postId)
-            dispatch(setPostsForCategory({ postsForCategory }))
 
-            let allPosts = getState().posts.allPosts.filter( post => post.id !== postId )
-            dispatch(setAllPosts({ allPosts }))
-
-            return postsForCategory.length
-        })
-    }
-}
 
 
 export const actionSetPostByPostId = (postId) => {
@@ -95,13 +77,73 @@ export const actionSetPostByPostId = (postId) => {
 }
 
 
+
+
+
+
+
+
+// We update 'allPosts' based on the post voted. This action is being called from 'CategorySelect.js'
 export const actionVotePost = (postId, vote) => {
-    return dispatch => {
-        return PostsAPI.votePost(postId, vote).then( postInDetail => {
-            dispatch(setPostInDetail({ postInDetail }))
+    return (dispatch, getState) => {
+        return PostsAPI.votePost(postId, vote).then( votedPost => {
+            dispatch(editPostInAllPosts({ editPost: votedPost }))
+            return votedPost
         })
     }
 }
+
+
+// We update 'allPosts' based on the post being edited, from a 'CardPost.js'
+export const actionEditPost = (titleValue, bodyValue, postId) => {
+    return dispatch => {
+        return PostsAPI.editPost(titleValue, bodyValue, postId).then( editedPost => {
+            dispatch(editPostInAllPosts({ editPost: editedPost }))
+        })
+    }
+}
+
+
+// We should update 'allPosts' with one less post. The post we're deleteing. We can use the 'setAllPosts'
+export const actionDeletePost = (postId) => {
+    return (dispatch, getState) => {
+        return PostsAPI.deletePost(postId).then( post => {
+            let allPostsWithoutPostToDelete = getState().posts.allPosts.filter( post => post.id !== postId)
+
+            dispatch(setAllPosts({ allPosts: allPostsWithoutPostToDelete }))
+            return allPostsWithoutPostToDelete.length
+        })
+    }
+}
+
+
+// Sets the stores 'allPosts'.
+// This is used throughout the app. We get all the posts, and sort out whats needed
+export const actionSetAllPosts = () => {
+    return dispatch => {
+        return PostsAPI.getAllPosts().then( allPosts => {
+            dispatch(setAllPosts({ allPosts }))
+            return allPosts
+        })
+    }
+}
+
+// We set the comment for the post in detail
+export const actionSetAllCommentsForPost = (postId) => {
+    return dispatch => {
+        return CommentsAPI.getAllCommentsForPost(postId).then( comments => {
+            dispatch(setComments({ comments }))
+        })
+    }
+}
+
+
+
+
+
+
+
+
 
 
 export const actionClearPostsForCategory = () => {
@@ -111,28 +153,31 @@ export const actionClearPostsForCategory = () => {
 }
 
 
-export const actionEditPost = (titleValue, bodyValue, postId) => {
-    return dispatch => {
-        return PostsAPI.editPost(titleValue, bodyValue, postId).then( postToEdit => {
-            dispatch(editPost({ postToEdit }))
-        })
-    }
-}
 
 
-export const actionSetAllPosts = () => {
-    return dispatch => {
-        return PostsAPI.getAllPosts().then( allPosts => {
-            dispatch(setAllPosts({ allPosts }))
-        })
-    }
-}
 
 
 export const actionEditAPostInAllPosts = (title, body, postId) => {
     return dispatch => {
         return PostsAPI.editPost(title, body, postId).then( editPost => {
             dispatch(editPostInAllPosts({ editPost }))
+            return editPost
         })
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -116,60 +116,70 @@ let initialPostsState = {
 }
 
 function posts (state = initialPostsState, action) {
-  switch (action.type) {
+//   const { allPosts, postsForCategory, postInDetail, postToEdit, editPost } = action
+    // let allPosts = state.allPosts
+    // let indexOfPost = null
+    // let editPost = {}
 
-    case SET_POSTS_FOR_CATEGORY:
-        const { postsForCategory } = action
+    switch (action.type) {
+
+    case SET_POSTS_FOR_CATEGORY: {
+        // const { postsForCategory } = action
+        let postsForCategory = action.postsForCategory
         return {
             ...state,
             postsForCategory
         }
+    }
 
 
-    case SET_POST_IN_DETAIL:
-        const { postInDetail } = action
+    // case SET_POST_IN_DETAIL:
+        // const { postInDetail } = action
         // console.log("set post in detail:", postInDetail.title)
-        return {
-            ...state,
-            postInDetail
-        }
+        // let postInDetail
+        // return {
+        //     ...state,
+        //     postInDetail
+        // }
 
-    case EDIT_POST:
-        const { postToEdit } = action
+    // case EDIT_POST:
+    //     // const { postToEdit } = action
+    //     let postToEdit = action.postToEdit
 
-        let indexOfPost = null
-        state.postsForCategory.map( (p, index) => { if (p.id === postToEdit.id) { indexOfPost = index }})
+    //     state.postsForCategory.map( (p, index) => { if (p.id === postToEdit.id) { indexOfPost = index }})
 
-        let newPosts = state.postsForCategory
-        newPosts[indexOfPost] = postToEdit
+    //     let newPosts = state.postsForCategory
+    //     newPosts[indexOfPost] = postToEdit
 
-        return {
-            ...state,
-            postsForCategory: newPosts
-        }
+    //     return {
+    //         ...state,
+    //         postsForCategory: newPosts
+    //     }
 
-    case SET_ALL_POSTS:
-        const { allPosts } = action
+    case SET_ALL_POSTS: {
+        let allPosts = action.allPosts
 
         return {
             ...state,
             allPosts
         }
+    }
 
-    case EDIT_POST_IN_ALL_POSTS:
-        const { editPost } = action
+    case EDIT_POST_IN_ALL_POSTS: {
+        let editPost = action.editPost
+        let allPosts = state.allPosts
+        let indexOfEditedPost = null
 
-        let indexOfnewPost = null
-        state.allPosts.map( (p, index) => { if (p.id === editPost.id) { indexOfnewPost = index }})
+        allPosts.map( (p, index) => { if (p.id === editPost.id) { indexOfEditedPost = index }})
 
-        let editedPosts = state.allPosts
-        editedPosts[indexOfnewPost] = editPost
+        let editedPosts = allPosts
+        editedPosts[indexOfEditedPost] = editPost
 
         return {
             ...state,
             allPosts: editedPosts
         }
-
+    }
 
     default:
       return state

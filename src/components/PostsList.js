@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import '../index.css';
 import { connect } from 'react-redux'
 import { setPostInDetail } from '../actions'
-import { actionSetCategories, actionSetPostsForCategory, actionDeletePost, actionClearPostsForCategory, actionEditPost, actionSetAllPosts } from '../actions/thunkActions'
+import {
+    //  actionSetCategories, actionSetPostsForCategory, actionDeletePost, actionClearPostsForCategory, actionEditPost,
+    actionSetAllPosts, actionVotePost } from '../actions/thunkActions'
 
 
 
@@ -51,66 +53,78 @@ class PostsList extends Component {
     }
 
     componentDidMount() {
-        this.props.actionSetCategories()
 
-        let category = this.props.match.params.category
+        // If 'allPosts' weren't downloaded in another component, like 'CategorySelect',
+        //  we download them and update store
+        if (this.props.allPosts === undefined) this.props.actionSetAllPosts().then( postsLength => {
+            postsLength === 0 ? this.setState({ noPosts: true }) : this.setState({ noPosts: false })
+        } )
 
 
-        if (category !== undefined) {
-            this.props.actionSetPostsForCategory(category).then( postsForCategory => {
-                postsForCategory.length === 0 ? this.setState({ noPosts: true }) : this.setState({ noPosts: false })
-                this.setState({ selectedCategory: true })
-            })
-        }
+
+
+        // this.props.actionSetCategories()
+        // let category = this.props.match.params.category
+        // if (category !== undefined) {
+        //     this.props.actionSetPostsForCategory(category).then( postsForCategory => {
+        //         postsForCategory.length === 0 ? this.setState({ noPosts: true }) : this.setState({ noPosts: false })
+        //         this.setState({ selectedCategory: true })
+        //     })
+        // }
     }
 
-    componentWillUnmount() {
-        this.props.actionClearPostsForCategory()
-    }
+    // componentWillUnmount() {
+        // this.props.actionClearPostsForCategory()
+    // }
 
 
 
+    // openEditModal = (post) => {
+    //     let fields = this.state.inputFields
+    //     let inputFields = {
+    //         ...fields,
+    //         title: {
+    //             ...fields.title,
+    //             value: post.title
+    //         },
+    //         body: {
+    //             ...fields.body,
+    //             value: post.body
+    //         }
 
-    openEditModal = (post) => {
-        let fields = this.state.inputFields
-        let inputFields = {
-            ...fields,
-            title: {
-                ...fields.title,
-                value: post.title
-            },
-            body: {
-                ...fields.body,
-                value: post.body
-            }
+    //     }
 
-        }
+    //     this.setState({
+    //         inputFields,
+    //         isEditModalOpen: true,
+    //         postToEdit: post,
+    //     })
+    // }
 
-        this.setState({
-            inputFields,
-            isEditModalOpen: true,
-            postToEdit: post,
-        })
-    }
-
-    closeEditModal = () => {
-        this.setState({
-            isEditModalOpen: false,
-            postToEdit: {}
-        }
-    )}
+    // closeEditModal = () => {
+    //     this.setState({
+    //         isEditModalOpen: false,
+    //         postToEdit: {}
+    //     }
+    // )}
 
     onOrderButtonClick = (orderBy) => {
         this.setState({ orderBy })
     }
 
 
-    handlePostEdit = (inputFields) => {
-        this.props.actionEditPost(inputFields.title.value, inputFields.body.value, this.state.postToEdit.id)
-        .then( this.closeEditModal() )
-    }
+    // handlePostEdit = (inputFields) => {
+    //     this.props.actionEditPost(inputFields.title.value, inputFields.body.value, this.state.postToEdit.id)
+    //     .then( this.closeEditModal() )
+    // }
 
 
+    // onVote = (vote, post) => {
+    //     // We need to update 'allPosts' based on the new vote.
+    //     console.log("onVote, PostList", vote, post.title)
+
+    //     this.props.actionVotePost(post.id, vote)
+    // }
 
 
     render() {
@@ -121,13 +135,15 @@ class PostsList extends Component {
         const backBtn = { color: 'gray', marginLeft: '1em', marginTop: '0.4em' }
 
         const sortedPosts = () => {
+
+            let posts = this.props.posts.allPosts.filter( p => p.category === this.props.match.params.category )
             switch(orderBy) {
             case 'author':
-                return sortBy(posts.postsForCategory, orderBy)
+                return sortBy(posts, orderBy)
             case 'timestamp':
-                return sortBy(posts.postsForCategory, orderBy).reverse()
+                return sortBy(posts, orderBy).reverse()
             default:
-                return sortBy(posts.postsForCategory, orderBy).reverse()
+                return sortBy(posts, orderBy).reverse()
             }
         }
 
@@ -165,11 +181,12 @@ class PostsList extends Component {
                         )}
 
                         <CardColumns>
-                            { posts.postsForCategory !== undefined && ( sortedPosts().map( post => (
+                            { posts.allPosts !== undefined && ( sortedPosts().map( post => (
                                 <CardPost key={post.id}
                                     post={ post }
                                     openEditModal={ (postId) => this.openEditModal(post)}
                                     goTo={ (location) => this.props.goTo(location) }
+                                    /*onVote={ (vote) => this.onVote(vote, post)}*/
                                 />
                             ))) }
                         </CardColumns>
@@ -206,13 +223,14 @@ const mapStateToProps = ({ categories, posts }) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    actionSetCategories: () => dispatch(actionSetCategories()),
-    actionClearPostsForCategory: () => dispatch(actionClearPostsForCategory()),
-    actionSetPostsForCategory: (category) => dispatch(actionSetPostsForCategory(category)),
-    actionDeletePost: (postId) => dispatch(actionDeletePost(postId)),
-    actionEditPost: (title, body, postId) => dispatch(actionEditPost(title, body, postId)),
-    setPostInDetail: (postInDetail) => dispatch(setPostInDetail(postInDetail)),
+    // actionSetCategories: () => dispatch(actionSetCategories()),
+    // actionClearPostsForCategory: () => dispatch(actionClearPostsForCategory()),
+    // actionSetPostsForCategory: (category) => dispatch(actionSetPostsForCategory(category)),
+    // actionDeletePost: (postId) => dispatch(actionDeletePost(postId)),
+    // actionEditPost: (title, body, postId) => dispatch(actionEditPost(title, body, postId)),
+    // setPostInDetail: (postInDetail) => dispatch(setPostInDetail(postInDetail)),
     actionSetAllPosts: () => dispatch(actionSetAllPosts()),
+    actionVotePost: (postId, vote) => dispatch(actionVotePost(postId, vote)),
   }
 }
 
