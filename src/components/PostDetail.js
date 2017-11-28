@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { setPostInDetail } from '../actions'
 import {
-    // actionSetCategories, actionSetAllCommentsForPost, actionCreateComment, actionSetPostByPostId
+    actionCreateComment,
+    actionDeletePost,
     actionSetAllCommentsForPost,
     actionVotePost,
     actionSetAllPosts,
@@ -49,6 +50,7 @@ class PostDetail extends Component {
 
 
     componentDidMount() {
+        let postInDetail = this.props.postInDetail
 
         // We get all the comments for this specific post
         this.props.actionSetAllCommentsForPost(this.props.match.params.post_id)
@@ -57,7 +59,7 @@ class PostDetail extends Component {
 
         // If 'allPosts' werent downloaded in another component, we get it here and set it to state
         if (this.props.allPosts === undefined) { this.props.actionSetAllPosts().then( allPosts => {
-
+            this.checkIfPostExists(allPosts)
             // we find the post being viewed in detail, and set it to state
             let post = allPosts.find( post => post.id === detailPostId )
             this.setState({ post })
@@ -71,9 +73,21 @@ class PostDetail extends Component {
     }
 
 
+    checkIfPostExists = (allPosts) => {
+        if (allPosts.filter( post => post.id === this.props.match.params.post_id ).length === 0 ) {
+            this.props.history.push("/noPostsFound")
+        }
+    }
 
 
     openCreatePostModal = () => { this.setState({ isCreatePostModalOpen: true }) }
+
+
+    deletePost = () => {
+
+        this.props.actionDeletePost(this.state.post.id)
+        this.props.history.push("/")
+    }
 
 
     closeModal = () => {
@@ -102,10 +116,8 @@ class PostDetail extends Component {
 
     postVote = (vote) => {
 
-        let postId = this.state.post.id
-        this.props.actionVotePost(postId, vote).then( votedPost => {
-            this.setState({ post: votedPost })
-        })
+        let post = this.state.post
+        this.props.actionVotePost(post, vote)
     }
 
 
@@ -123,7 +135,7 @@ class PostDetail extends Component {
 
     render () {
         const { category } = this.props.match.params
-        const { comments, postInDetail } = this.props
+        const { comments, postInDetail, posts } = this.props
         const { isCreatePostModalOpen, inputFields, post } = this.state
 
         // We sort the comments by voreScore. We then sort i by body, otherwise,
@@ -159,11 +171,15 @@ class PostDetail extends Component {
                 <Container className="post-detail-container">
 
                     {/* The post in detail */}
-                    { post !== undefined && (
+                    { posts.allPosts.length !== 0 && (
                         <div id="detail-post">
                             <Post
-                                postInDetail={ post }
+                                /*postInDetail={ post }*/
+                                deletePost={ () => this.deletePost() }
+                                postInDetailId={ this.props.match.params.post_id }
                                 postVote={ (vote) => this.postVote(vote) }
+                                allPosts={ posts.allPosts }
+                                commentsLength={ comments.comments.length }
                             />
                         </div>
                     )}
@@ -192,21 +208,17 @@ class PostDetail extends Component {
 function mapStateToProps ({ comments, posts }) {
   return {
     comments,
-    posts,
-    postsForCategory: posts.postsForCategory,
-    postInDetail: posts.postInDetail
+    posts
   }
 }
 
 
 function mapDispatchToProps (dispatch) {
   return {
-    // actionSetCategories: () => dispatch(actionSetCategories()),
-    // actionCreateComment: (bodyValue, authorValue, category, postId) => dispatch(actionCreateComment(bodyValue, authorValue, category, postId)),
-    // actionSetPostByPostId: (postId) => dispatch(actionSetPostByPostId(postId)),
-    // setPostInDetail: (postInDetail) => dispatch(setPostInDetail(postInDetail)),
-    actionVotePost: (postId, vote) => dispatch(actionVotePost(postId, vote)),
+    actionCreateComment: (bodyValue, authorValue, category, postId) => dispatch(actionCreateComment(bodyValue, authorValue, category, postId)),
     actionSetAllCommentsForPost: (postId) => dispatch(actionSetAllCommentsForPost(postId)),
+    actionVotePost: (post, vote) => dispatch(actionVotePost(post, vote)),
+    actionDeletePost: (postId) => dispatch(actionDeletePost(postId)),
     actionSetAllPosts: () => dispatch(actionSetAllPosts()),
   }
 }

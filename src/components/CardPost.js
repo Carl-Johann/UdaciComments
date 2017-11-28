@@ -3,8 +3,7 @@ import { connect } from 'react-redux'
 
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
-import { setPostInDetail, setPostsForCategory }  from '../actions'
-import { actionDeletePost, actionEditPost, actionEditAPostInAllPosts, actionVotePost} from '../actions/thunkActions'
+import { actionDeletePost, actionEditPost, actionVotePost} from '../actions/thunkActions'
 import { Link } from 'react-router-dom'
 import SubmitFields from './SubmitFields'
 
@@ -53,9 +52,7 @@ class CardPost extends Component {
             }
 
         }
-        this.setState({
-            inputFields
-        })
+        this.setState({ inputFields })
     }
 
     shouldComponentUpdate = (nextProps, nextState) => {
@@ -85,9 +82,9 @@ class CardPost extends Component {
 
     onVote = (vote) => {
         // We need to modify 'allPosts'. This post in 'allPosts'
-        let post = this.props.post
 
-        this.props.actionVotePost(post.id, vote)
+        let post = this.props.post
+        this.props.actionVotePost(post, vote)
     }
 
 
@@ -106,7 +103,7 @@ class CardPost extends Component {
     changeModalState = () => { this.setState({ isEditModalOpen: !this.state.isEditModalOpen }) }
 
 
-    deletePost = (postId) => {  this.props.actionDeletePost(postId) }
+    deletePost = (postId) => { this.props.actionDeletePost(postId) }
 
 
     render() {
@@ -165,7 +162,7 @@ class CardPost extends Component {
                         </Link>
                     </div>
 
-                    <ButtonGroup style={{ marsginLeft: '-20px', marginsRight: '-20px', width: '100%'}}>
+                    <ButtonGroup style={{ width: '100%' }}>
                         <Button className="btn comment-add-vote-score"    onClick={ () => this.onVote( "upVote" ) } style={ addVoteStyle } >
                             <FontAwesome name="thumbs-up" />
                         </Button>
@@ -191,11 +188,8 @@ const mapStateToProps = ({ posts }) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     actionDeletePost: (postId) => dispatch(actionDeletePost(postId)),
-    setPostInDetail: (postInDetail) => dispatch(setPostInDetail(postInDetail)),
     actionEditPost: (titleValue, bodyValue, postId) => dispatch(actionEditPost(titleValue, bodyValue, postId)),
-    actionEditAPostInAllPosts: (title, body, postId) => dispatch(actionEditAPostInAllPosts(title, body, postId)),
-    actionVotePost: (postId, vote) => dispatch(actionVotePost(postId, vote)),
-    setPostsForCategory: (postId, vote) => dispatch(setPostsForCategory(postId, vote))
+    actionVotePost: (post, vote) => dispatch(actionVotePost(post, vote)),
   }
 }
 

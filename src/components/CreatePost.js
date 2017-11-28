@@ -13,7 +13,6 @@ import {
 const CreatePost = ({ goBack, goTo }) => {
 
     const createPost = inputFields => {
-        // let inputFieldsEntries = Object.entries(inputFields)
         let title = inputFields.title.value
         let body = inputFields.body.value
         let author = inputFields.author.value
@@ -69,9 +68,6 @@ const CreatePost = ({ goBack, goTo }) => {
 
         </div>
     )
-
-
-
 
 }
 

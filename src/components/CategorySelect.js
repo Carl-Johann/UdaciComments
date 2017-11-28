@@ -4,8 +4,8 @@ import { connect } from 'react-redux'
 import sortBy from 'sort-array'
 
 import { Link } from 'react-router-dom'
-import { setPostInDetail } from '../actions'
-import { actionSetCategories, actionSetPostsForCategory, actionDeletePost, actionClearPostsForCategory, actionEditPost, actionSetAllPosts, actionEditAPostInAllPosts, actionVotePost } from '../actions/thunkActions'
+// import { setPostInDetail } from '../actions'
+import { actionSetCategories, actionSetAllPosts } from '../actions/thunkActions'
 import CardPost from './CardPost'
 
 import {
@@ -22,23 +22,14 @@ class CategorySelect extends Component {
     }
 
     componentDidMount() {
-        console.log("CategorySelect did mount ")
-
         this.props.actionSetCategories()
-        // this.props.actionSetAllPosts()
         if (this.props.allPosts === undefined) this.props.actionSetAllPosts()
     }
+
 
     onOrderButtonClick = (orderBy) => {
         this.setState({ orderBy })
     }
-
-
-    // onVote = (vote, post) => {
-    //     // We need to modify 'allPosts'. This post in 'allPosts'
-
-    //     this.props.actionVotePost(post.id, vote)
-    // }
 
 
 
@@ -69,6 +60,7 @@ class CategorySelect extends Component {
                 <Container >
                     { categories.categories.map( category => (
                         <div key={ category.name }>
+
                             <Link className="select-category-link" to={`/${category.name}`}  >
                                 <Card body style={ cardStyle }>
                                     <CardTitle style={ cardTitle }>
@@ -82,26 +74,24 @@ class CategorySelect extends Component {
                             { posts.allPosts !== undefined && ( sortedPosts(category).length !== 0 ?
                                 <CardColumns >
                                     { sortedPosts(category).map( post => (
-
                                         <CardPost
                                             key={ post.id }
                                             post={ post }
-                                            openEditModal={ (postId) => this.openEditModal(post)}
-                                            goTo={ (location) => this.props.goTo(location) }
-                                            /*onVote={ (vote) => this.onVote(vote, post)}*/
                                         />
-
                                     )) }
                                     </CardColumns>
-                            : <h3 style={{ textAlign: 'center' }}> No posts for this category. Add some... </h3> )}
+                                : <h3 style={{ textAlign: 'center' }}> No posts for this category. Add some... </h3>
+                            )}
                         </div>
                     ))}
                 </Container>
+
                 <Link to={`/create_post`}>
                     <Button className="add-post-btn">
                         Add Post
                     </Button>
                 </Link>
+
                 <ButtonGroup style={ fixedSortBtns }>
                     <Button id="sort-btn" onClick={() => this.onOrderButtonClick('voteScore')} active={ orderBy === 'voteScore' }> Vote Score  </Button>
                     <Button id="sort-btn" onClick={() => this.onOrderButtonClick('author'   )} active={ orderBy === 'author'    }>   Author    </Button>
@@ -126,14 +116,7 @@ const mapStateToProps = ({ categories, posts }) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     actionSetCategories: () => dispatch(actionSetCategories()),
-    actionClearPostsForCategory: () => dispatch(actionClearPostsForCategory()),
-    actionSetPostsForCategory: (category) => dispatch(actionSetPostsForCategory(category)),
-    actionDeletePost: (postId) => dispatch(actionDeletePost(postId)),
-    actionEditPost: (title, body, postId) => dispatch(actionEditPost(title, body, postId)),
-    setPostInDetail: (postInDetail) => dispatch(setPostInDetail(postInDetail)),
     actionSetAllPosts: () => dispatch(actionSetAllPosts()),
-    actionEditAPostInAllPosts: (title, body, postId) => dispatch(actionEditAPostInAllPosts(title, body, postId)),
-    actionVotePost: (postId, vote) => dispatch(actionVotePost(postId, vote)),
   }
 }
 

@@ -45,13 +45,7 @@ export const actionSetCategories = () => {
 
 
 
-export const actionCreateComment = (body, author, category, postId) => {
-    return dispatch => {
-        return CommentsAPI.createComment(body, author, category, postId).then( comment => {
-            dispatch(createComment({ comment }))
-        })
-    }
-}
+
 
 
 export const actionSetPostsForCategory = (category) => {
@@ -82,11 +76,21 @@ export const actionSetPostByPostId = (postId) => {
 
 
 
+export const actionCreateComment = (body, author, category, postId) => {
+    return dispatch => {
+        return CommentsAPI.createComment(body, author, category, postId).then( comment => {
+            dispatch(createComment({ comment }))
+        })
+    }
+}
+
 
 // We update 'allPosts' based on the post voted. This action is being called from 'CategorySelect.js'
-export const actionVotePost = (postId, vote) => {
-    return (dispatch, getState) => {
-        return PostsAPI.votePost(postId, vote).then( votedPost => {
+export const actionVotePost = (post, vote) => {
+    return dispatch => {
+        // console.log("post prior to post vote:", post.voteScore)
+        return PostsAPI.votePost(post.id, vote).then( votedPost => {
+            // console.log("votedPost:", votedPost.voteScore)
             dispatch(editPostInAllPosts({ editPost: votedPost }))
             return votedPost
         })
@@ -98,6 +102,7 @@ export const actionVotePost = (postId, vote) => {
 export const actionEditPost = (titleValue, bodyValue, postId) => {
     return dispatch => {
         return PostsAPI.editPost(titleValue, bodyValue, postId).then( editedPost => {
+            // console.log("editedPost:", editedPost)
             dispatch(editPostInAllPosts({ editPost: editedPost }))
         })
     }

@@ -4,6 +4,7 @@ import PostsList from './PostsList'
 import PostDetail from './PostDetail'
 import CategorySelect from './CategorySelect'
 import CreatePost from './CreatePost'
+import PostNotFound from './PostNotFound'
 
 import { Route, Switch } from 'react-router-dom';
 import '../index.css';
@@ -15,6 +16,7 @@ class App extends Component {
 
       <div className="UdaciComments">
         <Switch>
+          <Route exact path = "/noPostsFound" component={ PostNotFound } />
           <Route exact path = "/" component={ CategorySelect }/>
           <Route exact path = "/create_post" render={({ history }) => (
             <CreatePost
@@ -26,7 +28,7 @@ class App extends Component {
           <Route exact path = "/:category" component={ PostsList } />
           <Route exact path = "/:category/:post_id" component={ PostDetail } />
 
-          <Route path = "*" component={ CategorySelect } />
+
         </Switch>
       </div>
 

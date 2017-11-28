@@ -17,8 +17,7 @@ class InputFields extends Component {
         let inputFields = this.props.inputFieldsProps
         this.setState({ inputFields })
 
-        // this.props.actionSetCategories
-
+        this.props.actionSetCategories()
     }
 
     handleChange = (event) => {
@@ -66,6 +65,7 @@ class InputFields extends Component {
         this.setState({ inputFields })
     }
 
+
     cleanFields = () => {
         let inputFieldsEntries = Object.entries(this.state.inputFields)
         let inputFields = this.state.inputFields
@@ -100,12 +100,9 @@ class InputFields extends Component {
 
     render() {
 
-        // const { inputFields } = this.state
         const { categories, submitBtnText } = this.props
-        // const { title, body, author } = inputFields
 
         const titleText = { textTransform: 'capitalize' }
-        // const backBtn   = { cursor: 'pointer', color: 'gray', marginLeft: '1em', marginTop: '0.4em' }
         const textArea  = { minHeight: '62px' }
 
         return (
@@ -154,7 +151,7 @@ class InputFields extends Component {
                             >
                                 <option disabled> Select category... </option>
                                 <option>  </option>
-                                { categories !== undefined && (categories['categories'] !== undefined && (categories['categories'].map( category => (
+                                { categories !== undefined && (categories.categories !== undefined && (categories.categories.map( category => (
                                     <option name={ category.name } key={ category.name }> { category.name } </option>
 
                                 ) )))}
@@ -172,10 +169,10 @@ class InputFields extends Component {
 }
 
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({ categories, posts }) => {
   return {
-    categories: state.categories,
-    posts: state.posts
+    categories,
+    posts,
   }
 }
 

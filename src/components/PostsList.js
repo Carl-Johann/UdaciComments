@@ -2,16 +2,10 @@ import React, { Component } from 'react';
 import '../index.css';
 import { connect } from 'react-redux'
 import { setPostInDetail } from '../actions'
-import {
-    //  actionSetCategories, actionSetPostsForCategory, actionDeletePost, actionClearPostsForCategory, actionEditPost,
-    actionSetAllPosts, actionVotePost } from '../actions/thunkActions'
-
-
+import { actionSetAllPosts, actionVotePost } from '../actions/thunkActions'
 
 import SubmitFields from './SubmitFields'
 import CardPost from './CardPost'
-
-
 
 import sortBy from 'sort-array'
 import { Link } from 'react-router-dom'
@@ -22,6 +16,8 @@ import {
     Container, ButtonGroup, Modal
 } from 'reactstrap';
 
+
+
 class PostsList extends Component {
 
     state = {
@@ -30,13 +26,10 @@ class PostsList extends Component {
             'redux' : 'secondary',
             'udacity' : 'danger',
         },
+
         noPosts: false,
         orderBy: 'voteScore',
-
         isEditModalOpen: false,
-        postToEdit: {},
-
-        selectedCategory: null,
 
         inputFields: {
             title: {
@@ -59,72 +52,11 @@ class PostsList extends Component {
         if (this.props.allPosts === undefined) this.props.actionSetAllPosts().then( postsLength => {
             postsLength === 0 ? this.setState({ noPosts: true }) : this.setState({ noPosts: false })
         } )
-
-
-
-
-        // this.props.actionSetCategories()
-        // let category = this.props.match.params.category
-        // if (category !== undefined) {
-        //     this.props.actionSetPostsForCategory(category).then( postsForCategory => {
-        //         postsForCategory.length === 0 ? this.setState({ noPosts: true }) : this.setState({ noPosts: false })
-        //         this.setState({ selectedCategory: true })
-        //     })
-        // }
-    }
-
-    // componentWillUnmount() {
-        // this.props.actionClearPostsForCategory()
-    // }
-
-
-
-    // openEditModal = (post) => {
-    //     let fields = this.state.inputFields
-    //     let inputFields = {
-    //         ...fields,
-    //         title: {
-    //             ...fields.title,
-    //             value: post.title
-    //         },
-    //         body: {
-    //             ...fields.body,
-    //             value: post.body
-    //         }
-
-    //     }
-
-    //     this.setState({
-    //         inputFields,
-    //         isEditModalOpen: true,
-    //         postToEdit: post,
-    //     })
-    // }
-
-    // closeEditModal = () => {
-    //     this.setState({
-    //         isEditModalOpen: false,
-    //         postToEdit: {}
-    //     }
-    // )}
-
-    onOrderButtonClick = (orderBy) => {
-        this.setState({ orderBy })
     }
 
 
-    // handlePostEdit = (inputFields) => {
-    //     this.props.actionEditPost(inputFields.title.value, inputFields.body.value, this.state.postToEdit.id)
-    //     .then( this.closeEditModal() )
-    // }
 
-
-    // onVote = (vote, post) => {
-    //     // We need to update 'allPosts' based on the new vote.
-    //     console.log("onVote, PostList", vote, post.title)
-
-    //     this.props.actionVotePost(post.id, vote)
-    // }
+    onOrderButtonClick = (orderBy) => { this.setState({ orderBy }) }
 
 
     render() {
@@ -159,8 +91,6 @@ class PostsList extends Component {
 
                 <p className="title unselectable"> { this.props.match.params.category } </p>
 
-
-
                 <div id="edit-post-modal">
                     <Modal isOpen={ isEditModalOpen }>
                         <ModalHeader toggle={ this.closeEditModal }> Edit Comment </ModalHeader>
@@ -175,23 +105,20 @@ class PostsList extends Component {
                 </div>
 
 
-                    <Container>
-                        { noPosts && (
-                            <h3 style={{ textAlign: 'center' }}> No posts for this category. Add some... </h3>
-                        )}
+                <Container>
+                    { noPosts && (
+                        <h3 style={{ textAlign: 'center' }}> No posts for this category. Add some... </h3>
+                    )}
 
-                        <CardColumns>
-                            { posts.allPosts !== undefined && ( sortedPosts().map( post => (
-                                <CardPost key={post.id}
-                                    post={ post }
-                                    openEditModal={ (postId) => this.openEditModal(post)}
-                                    goTo={ (location) => this.props.goTo(location) }
-                                    /*onVote={ (vote) => this.onVote(vote, post)}*/
-                                />
-                            ))) }
-                        </CardColumns>
-
-                    </Container>
+                    <CardColumns>
+                        { posts.allPosts !== undefined && ( sortedPosts().map( post => (
+                            <CardPost
+                                key={ post.id }
+                                post={ post }
+                            />
+                        ))) }
+                    </CardColumns>
+                </Container>
 
 
                 <Link to={`/create_post`}>
@@ -199,15 +126,15 @@ class PostsList extends Component {
                         Add Post
                     </Button>
                 </Link>
+
                 <ButtonGroup style={ fixedSortBtns }>
                     <Button id="sort-btn" onClick={() => this.onOrderButtonClick('voteScore')} active={ orderBy === 'voteScore' }> Vote Score  </Button>
                     <Button id="sort-btn" onClick={() => this.onOrderButtonClick('author'   )} active={ orderBy === 'author'    }>   Author    </Button>
                     <Button id="sort-btn" onClick={() => this.onOrderButtonClick('timestamp')} active={ orderBy === 'timestamp' }> Create Date </Button>
                 </ButtonGroup>
-                <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
+                <br/><br/><br/><br/><br/><br/>
             </div>
-
-
         )
 
     }
@@ -223,12 +150,6 @@ const mapStateToProps = ({ categories, posts }) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    // actionSetCategories: () => dispatch(actionSetCategories()),
-    // actionClearPostsForCategory: () => dispatch(actionClearPostsForCategory()),
-    // actionSetPostsForCategory: (category) => dispatch(actionSetPostsForCategory(category)),
-    // actionDeletePost: (postId) => dispatch(actionDeletePost(postId)),
-    // actionEditPost: (title, body, postId) => dispatch(actionEditPost(title, body, postId)),
-    // setPostInDetail: (postInDetail) => dispatch(setPostInDetail(postInDetail)),
     actionSetAllPosts: () => dispatch(actionSetAllPosts()),
     actionVotePost: (postId, vote) => dispatch(actionVotePost(postId, vote)),
   }

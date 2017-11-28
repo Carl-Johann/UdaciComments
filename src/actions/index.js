@@ -54,6 +54,7 @@ export const editPost = ({ postToEdit }) => {
 }
 
 export const editPostInAllPosts = ({ editPost }) => {
+    // console.log("editPost:", editPost.voteScore)
     return {
         type: EDIT_POST_IN_ALL_POSTS,
         editPost
